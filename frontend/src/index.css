@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Stack+Sans+Text:wght@200..700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-primary: "Open Sans", sans-serif;
+  --font-secondary: "Stack Sans Text", sans-serif;
+}
