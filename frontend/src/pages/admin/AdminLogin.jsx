@@ -1,23 +1,15 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchAdmin } from "../../features/auth/authSlice";
-import { useState } from "react";
+import { clearError, fetchAdmin } from "../../../features/auth/authSlice";
+import { useEffect } from "react";
+import { toast, Toaster } from 'react-hot-toast'
 const AdminLogin = () => {
 
     const dispatch = useDispatch()
-    const { loading } = useSelector((state) => state.adminAuth)
+    const { loading, error, success } = useSelector((state) => state.adminAuth)
+    console.log(loading, error, success)
 
-    //   handle change for input 
-    const handleChange = (e) => {
-        console.log(e.target)
-        const { name, value } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-
-    }
     const {
         register,
         handleSubmit,
@@ -26,11 +18,30 @@ const AdminLogin = () => {
 
     const onSubmit = (data) => {
         dispatch(fetchAdmin(data))
-        };
+    };
+
+    useEffect(() => {
+        if (success) {
+
+            toast.success(success)
+
+            dispatch(clearError())
+
+            // setTimeout(() => {
+                
+            // }, timeout);
+        }
+        if (error) {
+            toast.error(error)
+            dispatch(clearError())
+
+        }
+    }, [error, success])
 
     return (
         <div className="min-h-screen bg-[#f6f6f6] flex items-center justify-center">
             <div className="w-[420px] bg-white shadow-md rounded-sm border border-gray-200">
+                <Toaster />
 
                 {/* Header */}
                 <div className="bg-[#3f6f85] px-6 py-4 rounded-t-sm flex items-center justify-between">

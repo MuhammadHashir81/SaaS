@@ -17,7 +17,7 @@ connectDB()
 seedAdmin()
 
 
-const port = 3000
+const port = process.env.API_URL || 3000
 
 app.use(express.json())
 app.use(cors(

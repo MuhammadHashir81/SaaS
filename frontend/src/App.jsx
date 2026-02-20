@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter,Routes,Route } from 'react-router-dom'
-import AdminLogin from './pages/AdminLogin'
-import Admin from './pages/Admin'
+import AdminLogin from './pages/admin/AdminLogin'
+import Admin from './pages/admin/Admin'
 const App = () => {
     return (
       <BrowserRouter>

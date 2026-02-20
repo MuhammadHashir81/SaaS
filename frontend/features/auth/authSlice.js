@@ -1,18 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import axios from 'axios'
+import { api } from '../../api/api'
 
-const apiUrl = import.meta.env.VITE_API_URL
 
 // Thunk
 export const fetchAdmin = createAsyncThunk(
   'users/fetchByIdStatus',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/api/admin/login`, data)
-      console.log(response)
-      return response.data
+      const response = await api.post(`/api/admin/login`, data,{
+        withCredentials:true
+      })
+      console.log(response.success)
+      
+      return response.success
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message)
+      return rejectWithValue(error.response?.data.error )
     }
   }
 )
@@ -27,7 +29,16 @@ const adminAuthSlice = createSlice({
     success: null,
     error: null,
   },
+  reducers:{
+      clearError:(state)=>{
+        state.error = null
+        state.success = null
+      }
+    },
+    
   extraReducers: (builder) => {
+
+    
     builder
       .addCase(fetchAdmin.pending, (state) => {
         state.admin = false
@@ -49,5 +60,6 @@ const adminAuthSlice = createSlice({
       })
   },
 })
+export const { clearError } = adminAuthSlice.actions
 
 export default adminAuthSlice.reducer
