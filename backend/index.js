@@ -4,7 +4,7 @@ import { configDotenv } from 'dotenv'
 import cookieParser from 'cookie-parser'
 import { adminAuthRouter } from './routes/adminAuth.route.js'
 import { connectDB } from './config/connectionDB.js'
-import { seedAdmin } from './controllers/adminAuthController.js'
+import { seedAdmin } from './controllers/user.auth.controller.js'
 
 
 const app = express()

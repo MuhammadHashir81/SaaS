@@ -1,7 +1,7 @@
-import { Admin } from "../models/admin.auth.model.js"
+import { adminAccessToken, adminRefreshToken, cookieOptions, userAccessToken, userRefreshToken } from "../utils/Genereate_Token.js"
 import bcrypt from 'bcryptjs'
 import { adminAuthSchema } from "../validations/admin.auth.validation.js"
-import { adminAccessToken, adminRefreshToken, cookieOptions } from "../utils/Genereate_Token.js"
+import { User } from '../models/user.auth.model.js'
 
 // seed admin 
 export const seedAdmin = async (req, res) => {
@@ -9,7 +9,11 @@ export const seedAdmin = async (req, res) => {
         const username = 'admin'
         const password = 'admin123admin'
         const hashedPassword = await bcrypt.hash(password, 10)
-        const createAdmin = await Admin.create({ username, password: hashedPassword })
+        const createAdmin = await User.create({
+            username,
+            password: hashedPassword,
+            role: 'admin'
+        })
 
     } catch (error) {
         console.log(error)
@@ -17,38 +21,52 @@ export const seedAdmin = async (req, res) => {
 }
 
 // admin auth controller
-export const adminAuth = async (req, res) => {
+export const loginUser = async (req, res) => {
     try {
-        const { username, password } = req.body
+        const { username, email, password } = req.body
         console.log(username, password)
         const result = adminAuthSchema.safeParse(req.body)
 
         if (!result.success) {
- 
-            const err = result.error.issues.map((e)=>e.message)
-
+            const err = result.error.issues.map((e) => e.message)
             return res.status(400).json({
                 success: false,
                 error: err
             })
         }
 
-        const admin = await Admin.findOne({ username })
+        const user = await User.findOne({ username })
+        console.log(user)
 
-        if (admin) {
-            const adminPassword = await bcrypt.compare(password, admin.password)
+        if (user) {
+            const userPassword = await bcrypt.compare(password, user.password)
 
-            if (!adminPassword) {
+            if (!userPassword) {
                 return res.status(400).json({ error: 'invalid password' })
             }
-            else {
-                const accessToken = adminAccessToken(admin._id)
-                const refreshToken = adminRefreshToken(admin._id)
+            if (user.role === 'user') {
+                const accessToken = userAccessToken(user._id)
+                const refreshToken = userRefreshToken(user._id)
 
-                res.cookie('adminAccessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
-                res.cookie('adminRefreshToken', refreshToken, cookieOptions)
+                res.cookie('acessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
+                res.cookie('refreshToken', refreshToken, cookieOptions)
 
-                return res.status(200).json({ success: 'admin logged in successfully' })
+                return res.status(200).json({
+                    success: 'log in successfully',
+                    role: user.role,
+                    user: user
+                })
+            }
+            if (user.role === 'admin') {
+
+                const adminToken = adminAccessToken(user._id)
+                const adminRfrshToken = adminRefreshToken(user._id)
+
+                res.cookie('adminAccessToken', adminToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
+                res.cookie('adminRefreshToken', adminRfrshToken, cookieOptions)
+
+                return res.status(200).json({ success: 'admin logged in successfully', role: user.role })
+
             }
 
         }
@@ -65,7 +83,6 @@ export const adminAuth = async (req, res) => {
     }
 }
 
-
 // refresh access token 
 export const refreshAccessToken = async (req, res) => {
     try {
@@ -77,7 +94,7 @@ export const refreshAccessToken = async (req, res) => {
 
         const decoded = jwt.verify(refreshToken, process.env.ADMIN_REFRESH_TOKEN_SECRET)
 
-        const admin = await Admin.findById(decoded.id)
+        const admin = await User.findById(decoded.id)
 
         if (!admin) {
             return res.status(400).json({ error: 'admin does not exist please login' })
@@ -99,7 +116,7 @@ export const refreshAccessToken = async (req, res) => {
 export const checkingAdminAuth = async (req, res) => {
     try {
         const { adminId } = req
-        const admin = await Admin.findById(adminId)
+        const admin = await User.findById(adminId)
 
         if (!findAdmin) {
             return res.status(400).json({ error: 'please login' })

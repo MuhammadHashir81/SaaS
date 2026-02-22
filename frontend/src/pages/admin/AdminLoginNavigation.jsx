@@ -3,7 +3,7 @@ import { FaLock } from "react-icons/fa6";
 import { FiLogIn } from "react-icons/fi";
 import { NavLink } from 'react-router-dom';
 
-const Admin = () => {
+const AdminLoginNavigation = () => {
 
   return (
     <div className='login flex items-center justify-center h-screen'>
@@ -27,4 +27,4 @@ const Admin = () => {
   )
 }
 
-export default Admin
+export default AdminLoginNavigation

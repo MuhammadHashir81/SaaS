@@ -1,11 +1,11 @@
 import React from 'react'
 
-const AdminSidebar = () => {
+const Products = () => {
   return (
     <div>
-      
+      products
     </div>
   )
 }
 
-export default AdminSidebar
+export default Products

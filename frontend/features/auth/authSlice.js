@@ -10,9 +10,13 @@ export const fetchAdmin = createAsyncThunk(
       const response = await api.post(`/api/admin/login`, data,{
         withCredentials:true
       })
-      console.log(response.success)
+      console.log(response)
       
-      return response.success
+      return {
+        success:response.success,
+        role:response.role
+      }
+
     } catch (error) {
       return rejectWithValue(error.response?.data.error )
     }
@@ -25,9 +29,11 @@ const adminAuthSlice = createSlice({
   initialState: {
     admin: null,
     loading: false,
+    isAuthenticated:false,
     checkingAdminAuth: false,
     success: null,
     error: null,
+    role:null
   },
   reducers:{
       clearError:(state)=>{
@@ -45,12 +51,15 @@ const adminAuthSlice = createSlice({
         state.loading = true
         state.checkingAdminAuth = true
         state.error = null
+        state.isAuthenticated = false
       })
       .addCase(fetchAdmin.fulfilled, (state, action) => {
         state.admin = true
         state.loading = false
         state.checkingAdminAuth = false
-        state.success = action.payload
+        state.success = action.payload.success
+        state.isAuthenticated = true
+        state.role = action.payload.role
       })
       .addCase(fetchAdmin.rejected, (state, action) => {
         state.admin = false

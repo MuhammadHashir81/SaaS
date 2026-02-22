@@ -2,16 +2,26 @@ import jwt from 'jsonwebtoken'
 
 
 // admin access token 
-export const adminAccessToken = (adminId) => {
-         return jwt.sign({id:adminId},process.env.ADMIN_ACCESS_TOKEN_SECRET,{expiresIn:'15m'})  
-    
- 
+export const userAccessToken = (userId) => {
+    return jwt.sign({ id: userId }, process.env.USER_ACCESS_TOKEN, { expiresIn: '15m' })
+
 }
 
 // amdin refresh token 
-export const adminRefreshToken = (adminId) => {
-    return jwt.sign({id:adminId},process.env.ADMIN_ACCESS_TOKEN_SECRET,{expiresIn:'7d'})  
+export const userRefreshToken = (userId) => {
+    return jwt.sign({ id: userId }, process.env.USER_REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 }
+
+export const adminAccessToken = (adminId) => {
+    return jwt.sign({ id: adminId }, process.env.USER_ACCESS_TOKEN, { expiresIn: '15m' })
+}
+
+
+// amdin refresh token 
+export const adminRefreshToken = (adminId) => {
+    return jwt.sign({ id: adminId }, process.env.USER_REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+}
+
 
 export const cookieOptions = {
     httpOnly: true,

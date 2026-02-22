@@ -4,10 +4,12 @@ import { useSelector, useDispatch } from 'react-redux'
 import { clearError, fetchAdmin } from "../../../features/auth/authSlice";
 import { useEffect } from "react";
 import { toast, Toaster } from 'react-hot-toast'
+import { useNavigate } from "react-router-dom";
 const AdminLogin = () => {
+    const navigate = useNavigate()
 
     const dispatch = useDispatch()
-    const { loading, error, success } = useSelector((state) => state.adminAuth)
+    const { loading, error, success } = useSelector((state) => state.auth)
     console.log(loading, error, success)
 
     const {
@@ -27,9 +29,10 @@ const AdminLogin = () => {
 
             dispatch(clearError())
 
-            // setTimeout(() => {
+            setTimeout(() => {
+                navigate('/admin/dashboard')
                 
-            // }, timeout);
+            }, 3000);
         }
         if (error) {
             toast.error(error)
@@ -107,3 +110,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
