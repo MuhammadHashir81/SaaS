@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Layout, Menu, Typography, Button, Divider, ConfigProvider } from "antd";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import { FaUser } from "react-icons/fa6";
+
 import {
   FiHome,
   FiFileText,
@@ -81,8 +83,8 @@ const AdminLayout = () => {
           }}
         >
           {/* LOGO */}
-          <div style={{ marginBottom: 30 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="">
+            <div>
               
 
               {!collapsed && (
@@ -96,10 +98,23 @@ const AdminLayout = () => {
                 </div>
               )}
             </div>
+            <Divider/>
+            <div className="flex justify-center gap-3 items-center mb-4">
+              <div className="rounded-full bg-linear-to-b from-blue-500 to-blue-300  w-[40px] h-[40px] flex items-center justify-center">
+
+              <FaUser size={15} color="white"/>
+              </div>
+              <div className="">
+
+              <h4 className="font-primary">admin</h4>
+              <h4 className="font-primary">admin@gmail.com</h4>
+              </div>
+
+            </div>
           </div>
 
           {/* MENU */}
-          <div style={{ height: "calc(100vh - 220px)", overflowY: "auto" }}>
+          {/* <div style={{ height: "calc(100vh - 220px)", overflowY: "auto" }}> */}
 
             
           <Menu
@@ -109,10 +124,10 @@ const AdminLayout = () => {
             items={menuItems}
             style={{ border: "none" }}
             />
-            </div>
+            {/* </div> */}
 
           {/* FOOTER */}
-          <div style={{ position: "absolute", bottom: 20, left: 12, right: 12 }}>
+          <div >
             <Divider />
 
             <Button
