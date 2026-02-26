@@ -88,7 +88,7 @@ const AdminLayout = () => {
               
 
               {!collapsed && (
-                <div>
+                <div className="flex">
                   <Title level={5} style={{ margin: 0 }}>
                     Greenburg
                   </Title>
@@ -165,8 +165,9 @@ const AdminLayout = () => {
         </Sider>
 
         {/* CONTENT */}
-        <Layout>
-          <Content style={{ padding: 40, background: "#ffffff" }}>
+        <Layout >
+          {/* <Content style={{ padding: 40, background: "" }}> */}
+          <Content className="bg-gray-100 p-[20px]">
             <Outlet/>
           </Content>
         </Layout>

@@ -15,6 +15,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "antd": "^6.3.0",
     "axios": "^1.13.5",
+    "chart.js": "^4.5.1",
     "react": "^19.2.0",
     "react-admin": "^5.14.2",
     "react-dom": "^19.2.0",
@@ -24,6 +25,7 @@
     "react-pro-sidebar": "^1.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.13.0",
+    "recharts": "^3.7.0",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
