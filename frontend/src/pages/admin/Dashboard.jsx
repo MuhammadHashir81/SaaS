@@ -460,8 +460,8 @@ const topProducts = [
             <div className='bg-white my-5 rounded-md px-4 py-7 w-[50%] h-[300px]'>
               <div className='flex justify-between items-center mb-4'>
 
-              <h3 className=' font-primary text-lg font-bold '>Top Products</h3>
-              <button className='bg-blue-500 font-primary  px-3 py-2 rounded-md'>Manage Products</button>
+              <h3 className=' font-primary text-lg font-semibold '>Top Products</h3>
+              <button className='bg-blue-500 font-primary  px-3 py-2 rounded-md text-white font-medium'>Manage Products</button>
               </div>
               {
                 topProducts.map((product)=>(
@@ -478,13 +478,13 @@ const topProducts = [
             <div className='bg-white my-5 rounded-md px-4 py-7 w-[50%] h-[300px]'>
               <div className='flex justify-between items-center mb-4'>
 
-              <h3 className=' font-primary text-xl font-semibold '>Top Products</h3>
-              <button className='bg-blue-500 font-primary  px-3 py-2 rounded-md'>Manage Products</button>
+              <h3 className=' font-primary text-lg font-semibold '>Top Customers</h3>
+              <button className='bg-blue-500 font-primary  px-3 py-2 rounded-md text-white font-medium'>Manage Customers</button>
               </div>
               {
                 topProducts.map((product)=>(
                   <div className='flex items-center justify-between'>
-                  <p className='font-primary font-light text-lg my-1 '>{product.name}</p>
+                  <p className='font-primary font-medium  my-1 '>{product.name}</p>
                   <p className='font-primary font-medium text-green-500 my-1'>{product.sales}</p>
                   </div>
 
