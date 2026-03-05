@@ -31,10 +31,9 @@ const AdminLayout = () => {
   const menuItems = [
     { key: "1", icon: <FiHome style={iconStyle} />, label:<NavLink to='/admin'>Dashboard</NavLink>,  },
     { key: "2", icon: <FiFileText style={iconStyle} />, label: <NavLink to='invoices'>Invoices</NavLink> },
-    { key: "3", icon: <FiGlobe style={iconStyle} />, label: "Geographic" },
-    { key: "4", icon: <FiPlusCircle style={iconStyle} />, label: "New Invoice" },
-    { key: "5", icon: <FiShoppingBag style={iconStyle} />, label: "Products" },
-    { key: "6", icon: <FiUsers style={iconStyle} />, label: "Customers" },
+    { key: "4", icon: <FiPlusCircle style={iconStyle} />, label: <NavLink to='new-invoice'>New Invoice</NavLink> },
+    { key: "5", icon: <FiShoppingBag style={iconStyle} />, label: <NavLink to='products'>Products</NavLink> },
+    { key: "6", icon: <FiUsers style={iconStyle} />, label: <NavLink to='customers'>Customers</NavLink> },
     { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
     { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
     { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },

@@ -4,6 +4,9 @@ import AdminLogin from './pages/admin/AdminLogin'
 import Dashboard from './pages/admin/Dashboard';
 import AdminLayout from './pages/admin/AdminLayout';
 import Invoices from './pages/admin/Invoices';
+import NewInvoice from './pages/admin/NewInvoice';
+import Products from './pages/admin/Products';
+import Customers from './pages/admin/Customers';
 
 const App = () => {
     return (
@@ -14,6 +17,9 @@ const App = () => {
         <Route path='/admin' element={<AdminLayout/>}>
         <Route index element={<Dashboard/>}/>
         <Route path='invoices' element={<Invoices/> }/>
+        <Route path='new-invoice' element={<NewInvoice/> }/>
+        <Route path='products' element={<Products/> }/>
+        <Route path='customers' element={<Customers/> }/>
         </Route>
 
         <Route path='/admin-login' element={<AdminLogin/>}/>

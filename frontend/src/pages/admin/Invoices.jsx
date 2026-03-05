@@ -29,9 +29,17 @@ const columns = [
     title: 'Discount',
     dataIndex: 'discount',
   },
-
+{
+    title: 'Total',
+    dataIndex: 'total',
+  },
+  {
+    title: 'Actions',
+    dataIndex: 'actions',
+  },
 
 ];
+
 const data = [
   {
     key: '1',
@@ -52,6 +60,7 @@ const data = [
     address: 'Sydney No. 1 Lake Park',
   },
 ];
+
 const Invoices = () => {
   return (
     <div>

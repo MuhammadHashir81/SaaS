@@ -52,7 +52,7 @@ const data = [
 ];
 
 
-const Products = () => {
+const Customers = () => {
   return (
     <div>
 
@@ -62,11 +62,11 @@ const Products = () => {
         <h6 className='font-primary font-medium'>Home</h6>
       </div>
 
-      <h2 className='font-primary text-xl font-bold mb-2'>Products Management</h2>
+      <h2 className='font-primary text-xl font-bold mb-2'>Customers</h2>
 
       {/* search products */}
       <div className="font-primary rounded-lg bg-white shadow-sm text-sm font-medium px-4 py-5 my-10">
-        <label htmlFor='search'>Search Products</label>
+        <label htmlFor='search'>Search Customers</label>
         <div className='flex items-center justify-between gap-4 mt-2'>
 
           <input type="text" placeholder='Search by name, product or bar number'
@@ -81,7 +81,7 @@ const Products = () => {
       {/* add new product */}
 
       <div className='font-primary rounded-lg bg-white shadow-sm text-sm font-medium px-4 py-5 my-10'>
-        <h2 className='font-primary text-base font-semibold'> Add New Product</h2>
+        <h2 className='font-primary text-base font-semibold'> Add New Customer</h2>
         <div className="grid grid-cols-2 gap-4 my-4">
   <div className="flex flex-col gap-2">
     <label htmlFor="name1">Name</label>
@@ -135,4 +135,4 @@ const Products = () => {
   )
 }
 
-export default Products
+export default Customers
