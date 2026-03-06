@@ -3,7 +3,7 @@ import { Select } from 'antd';
 import { FaPlus } from 'react-icons/fa6';
 import { MdHome } from 'react-icons/md'
 import { Divider, Table } from 'antd';
-
+import {ConfigProvider} from 'antd'
 
 const columns = [
   {
@@ -42,6 +42,26 @@ const data = [
 ];
 const NewInvoice = () => {
   return (
+      <ConfigProvider
+            theme={{
+                components:{
+                    DatePicker:{
+                        activeBorderColor:'black',
+                        hoverBorderColor:'black',
+                        lineWidth:1,
+                        borderRadius:4
+                    },
+    
+                    Select:{
+                        activeBorderColor:'black',
+                        hoverBorderColor:'black',
+                        lineWidth:1,
+                        borderRadius:4
+                    }
+                }
+            }}
+            >
+    
     <div>
             <div className='flex items-center gap-1 mb-4'>
     
@@ -58,7 +78,7 @@ const NewInvoice = () => {
 
 
           <Select
-            style={{ width: 250, backgroundColor: '#f5f5f5' }}
+            style={{ width: 250 }}
 
     placeholder="Select an option"
     showSearch={{
@@ -90,6 +110,7 @@ const NewInvoice = () => {
 
             
     </div>
+    </ConfigProvider>
   )
 }
 

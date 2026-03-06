@@ -34,11 +34,7 @@ const AdminLayout = () => {
     { key: "4", icon: <FiPlusCircle style={iconStyle} />, label: <NavLink to='new-invoice'>New Invoice</NavLink> },
     { key: "5", icon: <FiShoppingBag style={iconStyle} />, label: <NavLink to='products'>Products</NavLink> },
     { key: "6", icon: <FiUsers style={iconStyle} />, label: <NavLink to='customers'>Customers</NavLink> },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: "Outflows" },
+    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: <NavLink to='outflows'>Outflows</NavLink> },
   ];
 
   return (

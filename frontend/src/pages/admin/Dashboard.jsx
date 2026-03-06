@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { MdHome } from "react-icons/md";
 import { DatePicker, Space } from 'antd';
 import { Card, Col, Row, Statistic } from 'antd';
+import { ConfigProvider } from "antd";
+
 
 
 import {
@@ -168,6 +170,26 @@ const topProducts = [
   };
 
   return (
+    
+        <ConfigProvider
+        theme={{
+            components:{
+                DatePicker:{
+                    activeBorderColor:'black',
+                    hoverBorderColor:'black',
+                    lineWidth:1,
+                    borderRadius:4
+                },
+
+                Select:{
+                    activeBorderColor:'black',
+                    hoverBorderColor:'black',
+                    lineWidth:1,
+                    borderRadius:4
+                }
+            }
+        }}
+        >
     <div className=''>
       <div className=''>
 
@@ -200,15 +222,15 @@ const topProducts = [
           <div className=' grid grid-cols-3 gap-4'>
 
 
-            <div className=''>
-              <h2 className='font-primary font-medium'>Custom Start Date</h2>
+            <div className='flex flex-col gap-1'>
+              <h2 className='font-primary font-medium'> Start Date - End Date</h2>
               <Space vertical size={12}>
                 <RangePicker />
 
               </Space>
             </div>
 
-            <div className=''>
+            <div className='flex flex-col gap-1'>
               <h2 className='font-primary font-medium'>Filter by Product</h2>
               <Select
                 mode="tags"
@@ -219,7 +241,7 @@ const topProducts = [
               />
 
             </div>
-            <div className=''>
+            <div className='flex flex-col gap-1'>
               <h2 className='font-primary font-medium'> Filter by Customer</h2>
               <Select
                 mode="tags"
@@ -232,7 +254,7 @@ const topProducts = [
             </div>
           </div>
 
-          <div className='mt-5 flex gap-4'>
+          <div className='mt-7 flex gap-4'>
 
             <button className=' bg-blue-500 px-6 py-3 text-white font-primary font-medium rounded-md cursor-pointer hover:bg-blue-600'>Apply Filters</button>
             <button className=' bg-gray-200 hover:bg-gray-300 cursor-pointer text-black px-6 py-3  font-primary font-medium rounded-md'>Clear Filters</button>
@@ -504,6 +526,7 @@ const topProducts = [
 
 
     </div>
+    </ConfigProvider>
   )
 }
 

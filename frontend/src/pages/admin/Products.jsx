@@ -1,55 +1,55 @@
 import React from 'react'
 import { MdHome } from 'react-icons/md'
-import { Divider, Table } from 'antd';
+  import {  Table } from 'antd';
 
-const columns = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-  },
-  {
-    title: 'Packing',
-    dataIndex: 'packing',
-  },
-  {
-    title: 'Batch No',
-    dataIndex: 'batchno',
-  },
-  {
-    title: 'Barcode',
-    dataIndex: 'barcode',
-  },
-  
-  {
-    title: 'Action',
-    dataIndex: '',
-    key: 'x',
-    render: () => <a>Delete</a>,
-  },
-];
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Packing',
+      dataIndex: 'packing',
+    },
+    {
+      title: 'Batch No',
+      dataIndex: 'batchno',
+    },
+    {
+      title: 'Barcode',
+      dataIndex: 'barcode',
+    },
+    
+    {
+      title: 'Action',
+      dataIndex: '',
+      key: 'x',
+      render: () => <a>Delete</a>,
+    },
+  ];
 
-const data = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    packing:'fsdf',
-    batchno:'fsd',
-    barcode:'ldfs'
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-  },
-];
+  const data = [
+    {
+      key: '1',
+      name: 'John Brown',
+      age: 32,
+      packing:'fsdf',
+      batchno:'fsd',
+      barcode:'ldfs'
+    },
+    {
+      key: '2',
+      name: 'Jim Green',
+      age: 42,
+      address: 'London No. 1 Lake Park',
+    },
+    {
+      key: '3',
+      name: 'Joe Black',
+      age: 32,
+      address: 'Sydney No. 1 Lake Park',
+    },
+  ];
 
 
 const Products = () => {
