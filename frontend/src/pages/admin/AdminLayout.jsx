@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { Layout, Menu, Typography, Button, Divider, ConfigProvider } from "antd";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Outlet } from "react-router-dom";
-import { FaUser } from "react-icons/fa6";
+import { NavLink, Outlet } from "react-router-dom";
 
+import { FaUser } from "react-icons/fa6";
 import {
   FiHome,
   FiFileText,
-  FiGlobe,
   FiPlusCircle,
   FiShoppingBag,
   FiUsers,
@@ -16,158 +13,112 @@ import {
   FiChevronLeft,
 } from "react-icons/fi";
 
-const { Sider, Content } = Layout;
-const { Title, Text } = Typography;
-
 const AdminLayout = () => {
-   const navigate = useNavigate()
-
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey, setSelectedKey] = useState("1");
-
-
-  const iconStyle = { fontSize: 18 };
 
   const menuItems = [
-    { key: "1", icon: <FiHome style={iconStyle} />, label:<NavLink to='/admin'>Dashboard</NavLink>,  },
-    { key: "2", icon: <FiFileText style={iconStyle} />, label: <NavLink to='invoices'>Invoices</NavLink> },
-    { key: "4", icon: <FiPlusCircle style={iconStyle} />, label: <NavLink to='new-invoice'>New Invoice</NavLink> },
-    { key: "5", icon: <FiShoppingBag style={iconStyle} />, label: <NavLink to='products'>Products</NavLink> },
-    { key: "6", icon: <FiUsers style={iconStyle} />, label: <NavLink to='customers'>Customers</NavLink> },
-    { key: "7", icon: <FiDollarSign style={iconStyle} />, label: <NavLink to='outflows'>Outflows</NavLink> },
+    { name: "Dashboard", icon: <FiHome />, path: "/admin" },
+    { name: "Invoices", icon: <FiFileText />, path: "invoices" },
+    { name: "New Invoice", icon: <FiPlusCircle />, path: "new-invoice" },
+    { name: "Products", icon: <FiShoppingBag />, path: "products" },
+    { name: "Customers", icon: <FiUsers />, path: "customers" },
+    { name: "Outflows", icon: <FiDollarSign />, path: "outflows" },
   ];
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#2563eb",
-          borderRadius: 12,
-          fontSize: 14,
-        },
-        components: {
-          Layout: {
-            siderBg: "#f5f7fb",
-          },
-          Menu: {
-            itemBg: "transparent",
-            itemSelectedBg: "#e8f0fe",
-            itemSelectedColor: "#2563eb",
-            itemHoverBg: "#eef2ff",
-            itemBorderRadius: 10,
-            activeBarWidth: 4,
-            activeBarBorderWidth: 0,
-            activeBarPosition: "end",
-            activeBarColor: "#2563eb",
+    <div className="flex min-h-screen bg-gray-100">
 
-          },
-          Button: {
-            borderRadius: 10,
-          },
-        },
-      }}
-    >
-      <Layout style={{ minHeight: "100vh" }}>
-        <Sider
-          width={260}
-          collapsedWidth={80}
-          collapsed={collapsed}
-          style={{
-            padding: "16px 12px",
-            position: "relative",
-          }}
-        >
-          {/* LOGO */}
-          <div className="">
+      {/* SIDEBAR */}
+      <aside
+        className={`bg-gray-50 border-r transition-all max-h-screen  duration-300 flex flex-col
+        ${collapsed ? "w-[80px]" : "w-[260px]"}`}
+      >
+        {/* LOGO */}
+        <div className="p-4">
+          {!collapsed && (
             <div>
-              
-
-              {!collapsed && (
-                <div className="flex">
-                  <Title level={5} style={{ margin: 0 }}>
-                    Greenburg
-                  </Title>
-                  <Text type="secondary" style={{ fontSize: 12, textAlign:"center" }}>
-                    Invoicing System
-                  </Text>
-                </div>
-              )}
+              <h2 className="font-semibold text-lg">Greenburg</h2>
+              <p className="text-xs text-gray-500">Invoicing System</p>
             </div>
-            <Divider/>
-            <div className="flex justify-center gap-3 items-center mb-4">
-              <div className="rounded-full bg-linear-to-b from-blue-500 to-blue-300  w-[40px] h-[40px] flex items-center justify-center">
+          )}
+        </div>
 
-              <FaUser size={15} color="white"/>
-              </div>
-              <div className="">
+        <hr className="mb-4" />
 
-              <h4 className="font-primary">admin</h4>
-              <h4 className="font-primary">admin@gmail.com</h4>
-              </div>
-
-            </div>
+        {/* USER */}
+        <div className="flex items-center gap-3 px-4 mb-6">
+          <div className="rounded-full bg-gradient-to-b from-blue-500 to-blue-300 w-[40px] h-[40px] flex items-center justify-center">
+            <FaUser size={15} className="text-white" />
           </div>
 
-          {/* MENU */}
-          {/* <div style={{ height: "calc(100vh - 220px)", overflowY: "auto" }}> */}
+          {!collapsed && (
+            <div>
+              <h4 className="text-sm font-semibold">admin</h4>
+              <p className="text-xs text-gray-500">admin@gmail.com</p>
+            </div>
+          )}
+        </div>
 
-            
-          <Menu
-            mode="inline"
-            selectedKeys={[selectedKey]}
-            onClick={(e) => setSelectedKey(e.key)}
-            items={menuItems}
-            style={{ border: "none" }}
-            />
-            {/* </div> */}
-
-          {/* FOOTER */}
-          <div >
-            <Divider />
-
-            <Button
-              type="text"
-              icon={<FiChevronLeft size={18} />}
-              block
-              style={{ textAlign: "left", background: "#eef1f6", marginBottom: 8 }}
-              onClick={() => setCollapsed(!collapsed)}
+        {/* MENU */}
+        <nav className="flex-1 px-2 space-y-2">
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              end
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 rounded-lg transition
+                ${
+                  isActive
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-600 hover:bg-indigo-50"
+                }`
+              }
             >
-              {!collapsed && "Collapse"}
-            </Button>
+              <span className="text-lg">{item.icon}</span>
 
-            <Button
-              type="text"
-              icon={<FiLogIn size={18} />}
-              block
-              style={{ textAlign: "left", fontWeight: 500 }}
-            >
-              {!collapsed && "Login"}
-            </Button>
+              {!collapsed && <span className="text-sm">{item.name}</span>}
+            </NavLink>
+          ))}
+        </nav>
 
-            {!collapsed && (
-              <div style={{ marginTop: 16 }}>
-                <Divider style={{ margin: "10px 0" }} />
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Made by <span style={{ color: "#2563eb" }}>Keynou</span>
-                </Text>
-                <br />
-                <Text type="secondary" style={{ fontSize: 11 }}>
-                  v1.0.0
-                </Text>
-              </div>
-            )}
-          </div>
-        </Sider>
+        {/* FOOTER */}
+        <div className="p-3">
+          <hr className="mb-3" />
 
-        {/* CONTENT */}
-        <Layout >
-          {/* <Content style={{ padding: 40, background: "" }}> */}
-          <Content className="bg-gray-100 p-[20px]">
-            <Outlet/>
-          </Content>
-        </Layout>
-      </Layout>
-    </ConfigProvider>
+          {/* Collapse */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center gap-3 w-full p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-left mb-2"
+          >
+            <FiChevronLeft size={18} />
+            {!collapsed && <span>Collapse</span>}
+          </button>
+
+          {/* Login */}
+          <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 text-left font-medium">
+            <FiLogIn size={18} />
+            {!collapsed && <span>Login</span>}
+          </button>
+
+          {!collapsed && (
+            <div className="mt-4 text-xs text-gray-500">
+              <hr className="mb-2" />
+              <p>
+                Made by <span className="text-blue-600">Keynou</span>
+              </p>
+              <p>v1.0.0</p>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* CONTENT */}
+      <main className="flex-1 p-5">
+        <Outlet />
+      </main>
+
+    </div>
   );
 };
 
