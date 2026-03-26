@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
 
 import { FaUser } from "react-icons/fa6";
 import {
@@ -12,12 +14,14 @@ import {
   FiLogIn,
   FiChevronLeft,
 } from "react-icons/fi";
+import { MdOutlineLogin } from "react-icons/md";
 
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const menuItems = [
-    { name: "Dashboard", icon: <FiHome />, path: "/admin" },
+    { name: "Dashboard", icon: <FiHome />, path: "dashboard" },
     { name: "Invoices", icon: <FiFileText />, path: "invoices" },
     { name: "New Invoice", icon: <FiPlusCircle />, path: "new-invoice" },
     { name: "Products", icon: <FiShoppingBag />, path: "products" },
@@ -25,91 +29,75 @@ const AdminLayout = () => {
     { name: "Outflows", icon: <FiDollarSign />, path: "outflows" },
   ];
 
+  const handleToggleCollapsed = () => {
+    setIsCollapsed(!isCollapsed)
+
+  }
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className=" flex min-h-screen bg-gray-100 ">
 
       {/* SIDEBAR */}
-      <aside
-        className={`bg-gray-50 border-r transition-all max-h-screen  duration-300 flex flex-col
-        ${collapsed ? "w-[80px]" : "w-[260px]"}`}
-      >
-        {/* LOGO */}
-        <div className="p-4">
-          {!collapsed && (
-            <div>
-              <h2 className="font-semibold text-lg">Greenburg</h2>
-              <p className="text-xs text-gray-500">Invoicing System</p>
-            </div>
-          )}
+      <aside className={ ` overflow-hidden  ${ isCollapsed ? 'w-[80px]' : 'w-[300px]'  } h-screen sticky top-0  bg-white `}>
+        <div className="flex items-center justify-center my-6 ">
+
+          <h4 className="font-primary font-bold text-xl">
+            {
+              isCollapsed ? 'G' : 'Greenburg'
+            }
+            </h4>
         </div>
+        <hr className="text-gray-100" />
+        <div className="px-5 py-4 h-full flex flex-col space-y-3 font-secondary text-gray-500">
+          {
+            menuItems.map((item, index) => (
+              <div className={` `}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    isActive ?
+                      'flex items-center gap-2 h-fit bg-gradient-to-r from-blue-200 to-blue-100 border-r-4 border-blue-600 px-4 py-3 rounded-lg cursor-pointer text-blue-500'
+                      :
+                      'flex items-center gap-2 h-fit px-4  py-3 rounded-lg cursor-pointer hover:bg-gray-100 '
+                  }
+                >
+                  <p>{item.icon}</p>
+                  <p className={`${isCollapsed ? 'hidden' : 'block'}`}>{item.name}</p>
+                </NavLink>
 
-        <hr className="mb-4" />
+              </div>
 
-        {/* USER */}
-        <div className="flex items-center gap-3 px-4 mb-6">
-          <div className="rounded-full bg-gradient-to-b from-blue-500 to-blue-300 w-[40px] h-[40px] flex items-center justify-center">
-            <FaUser size={15} className="text-white" />
-          </div>
+            ))
+          }
+          {
+            isCollapsed ? (
+              <button 
+              className="px-4 py-3 flex justify-center cursor-pointer rounded-lg bg-gray-50 hover:bg-gray-100"
 
-          {!collapsed && (
-            <div>
-              <h4 className="text-sm font-semibold">admin</h4>
-              <p className="text-xs text-gray-500">admin@gmail.com</p>
-            </div>
-          )}
-        </div>
+              onClick={handleToggleCollapsed}
+              >
+              <FaChevronRight/>
+              </button>
 
-        {/* MENU */}
-        <nav className="flex-1 px-2 space-y-2">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              end
-              className={({ isActive }) =>
-                `flex items-center gap-3 p-3 rounded-lg transition
-                ${
-                  isActive
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-600 hover:bg-indigo-50"
-                }`
-              }
-            >
-              <span className="text-lg">{item.icon}</span>
+            ):(
+              
+              <button
+              className="flex bg-gray-50 hover:bg-gray-100 cursor-pointer px-4 py-3 rounded-lg justify-center items-center gap-1"
+              onClick={handleToggleCollapsed}
+              >
+                <span><FaChevronLeft/></span> collapse
+                </button>
+            )
+          }
 
-              {!collapsed && <span className="text-sm">{item.name}</span>}
-            </NavLink>
-          ))}
-        </nav>
 
-        {/* FOOTER */}
-        <div className="p-3">
-          <hr className="mb-3" />
-
-          {/* Collapse */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center gap-3 w-full p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-left mb-2"
-          >
-            <FiChevronLeft size={18} />
-            {!collapsed && <span>Collapse</span>}
-          </button>
-
-          {/* Login */}
-          <button className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100 text-left font-medium">
-            <FiLogIn size={18} />
-            {!collapsed && <span>Login</span>}
-          </button>
-
-          {!collapsed && (
-            <div className="mt-4 text-xs text-gray-500">
-              <hr className="mb-2" />
-              <p>
-                Made by <span className="text-blue-600">Keynou</span>
-              </p>
-              <p>v1.0.0</p>
-            </div>
-          )}
+          <button className="flex items-center gap-2.5 self-start text-blue-500 cursor-pointer hover:bg-blue-50 w-full transition-all duration-100 ease-in  px-2 rounded-lg "> 
+            <span>
+              <MdOutlineLogin/>
+            </span>  
+            {
+              isCollapsed ? <MdOutlineLogin/> : 'Login' 
+            }
+              </button>
         </div>
       </aside>
 
