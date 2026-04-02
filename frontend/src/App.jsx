@@ -8,6 +8,7 @@ import NewInvoice from './pages/admin/NewInvoice';
 import Products from './pages/admin/Products';
 import Customers from './pages/admin/Customers';
 import Outflows from './pages/admin/Outflows';
+import EditCustomer from './pages/admin/EditCustomer';
 
 const App = () => {
     return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path='products' element={<Products/> }/>
         <Route path='customers' element={<Customers/> }/>
         <Route path='outflows' element={<Outflows/> }/>
+        <Route path='edit/:id' element={<EditCustomer/> }/>
         </Route>
 
         <Route path='/admin-login' element={<AdminLogin/>}/>

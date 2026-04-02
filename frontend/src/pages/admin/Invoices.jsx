@@ -4,7 +4,7 @@ import { DatePicker } from 'antd';
 import {  Table } from 'antd';
 import { FaPlus } from 'react-icons/fa6';
 import {ConfigProvider} from 'antd'
-
+import {NavLink} from 'react-router-dom'
 const onChange = (date, dateString) => {
   console.log(date, dateString);
 };
@@ -95,10 +95,10 @@ const Invoices = () => {
               <div className='flex items-center justify-between'>
 
         <h2 className='font-primary text-xl font-bold mb-2'>Invoices</h2>
-        <button className='flex items-center gap-2 bg-blue-600 font-primary font-medium px-4 py-3 rounded-md text-white'>
+        <NavLink to='/admin/new-invoice' className='flex items-center gap-2 bg-blue-600 font-primary font-medium px-4 py-3 rounded-md text-white'>
           <FaPlus/>
            Create Invoice
-           </button>
+           </NavLink>
               </div>
 
               {/* the uppper div */}

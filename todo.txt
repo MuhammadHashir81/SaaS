@@ -1,0 +1,2 @@
+1- fix zod validation for ntn strn location and email 
+2- add zod validation in update controller

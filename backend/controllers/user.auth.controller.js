@@ -21,7 +21,7 @@ export const seedAdmin = async (req, res) => {
 }
 
 // admin auth controller
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res) => { 
     try {
         const { username, email, password } = req.body
         console.log(username, password)

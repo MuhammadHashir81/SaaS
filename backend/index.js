@@ -3,9 +3,9 @@ import cors from 'cors'
 import { configDotenv } from 'dotenv'
 import cookieParser from 'cookie-parser'
 import { adminAuthRouter } from './routes/adminAuth.route.js'
-import { connectDB } from './config/connectionDB.js'
+import { connectDB } from './db/connectionDB.js'
 import { seedAdmin } from './controllers/user.auth.controller.js'
-
+import { customerRoute } from './routes/customer.route.js'
 
 const app = express()
 app.use(cookieParser())
@@ -31,6 +31,11 @@ app.use(cors(
 // admin auth routers
 app.use('/api/admin',adminAuthRouter)
 
+
+
+  
+// customer route
+app.use('/api/customer',customerRoute)
 
 app.get('/',(res,req)=>{
   res.send('SaaS')
