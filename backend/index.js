@@ -6,6 +6,7 @@ import { adminAuthRouter } from './routes/adminAuth.route.js'
 import { connectDB } from './db/connectionDB.js'
 import { seedAdmin } from './controllers/user.auth.controller.js'
 import { customerRoute } from './routes/customer.route.js'
+import { productRouter } from './routes/product.route.js'
 
 const app = express()
 app.use(cookieParser())
@@ -36,6 +37,9 @@ app.use('/api/admin',adminAuthRouter)
   
 // customer route
 app.use('/api/customer',customerRoute)
+
+// product router
+app.use('/api/product',productRouter)
 
 app.get('/',(res,req)=>{
   res.send('SaaS')

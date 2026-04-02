@@ -10,6 +10,7 @@
 
     const Customers = () => {
         const navigate = useNavigate()
+        
         const columns = [
         {
             title: 'Name',
@@ -102,7 +103,11 @@
 
     // handle delete 
 
-    const handleDelete = (customer) => {
+    const handleDelete = async(customer) => {
+        const id = customer._id
+        const response = await api.delete(`api/customer/delete/${id}`)
+        setCustomers((prev) => prev.filter(customer => customer._id !== id))
+        console.log(response)
         console.log(customer._id)
     }
 
@@ -132,7 +137,7 @@
                     <div className='flex items-center justify-between gap-4 mt-2'>
 
                         <input type="text" placeholder='Search by name, product or bar number'
-                            className='w-full px-2 py-2 outline-1 outline-neutral-300 rounded-md '
+                            className=' w-full px-4 py-2 outline-1 outline-neutral-300 rounded-sm focus:outline-2 focus:outline-black'
                             id='search'
                         />
                         <button className='bg-blue-500 px-4 py-2 rounded-md text-white text-sm font-primary'>Search</button>

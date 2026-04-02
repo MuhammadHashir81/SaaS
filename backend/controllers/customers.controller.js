@@ -88,13 +88,17 @@ const handleUpdateCustomers = async (req,res)=>{
 }
 
 // delete customer
-
 const handleDeleteCustomer = async (req,res) => {
     const { id } = req.params
     try {
         const deletedCustomer = await Customer.findByIdAndDelete(id)
+        res.status(200).json({
+            success:true,
+            message:'customer deleted successfully',
+            data:deletedCustomer
+        })
     } catch (error) {
-        
+        res.status(500).json({error})
     }
 
 }
