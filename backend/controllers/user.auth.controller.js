@@ -2,7 +2,7 @@ import { adminAccessToken, adminRefreshToken, cookieOptions, userAccessToken, us
 import bcrypt from 'bcryptjs'
 import { adminAuthSchema } from "../validations/admin.auth.validation.js"
 import { User } from '../models/user.auth.model.js'
-
+import jwt from 'jsonwebtoken'
 // seed admin 
 export const seedAdmin = async (req, res) => {
     try {
@@ -92,7 +92,7 @@ export const refreshAccessToken = async (req, res) => {
             return res.status(400).json({ error: 'login please' })
         }
 
-        const decoded = jwt.verify(refreshToken, process.env.ADMIN_REFRESH_TOKEN_SECRET)
+        const decoded = jwt.verify(refreshToken, process.env.USER_REFRESH_TOKEN_SECRET)
 
         const admin = await User.findById(decoded.id)
 
@@ -106,7 +106,8 @@ export const refreshAccessToken = async (req, res) => {
         return res.status(200).json({ success: 'admin access token refreshed successfully' })
 
     } catch (error) {
-        return res.status(500).json({ error: 'internal server error' })
+        console.log(error.message)
+        return res.status(500).json({ error: error.message })
     }
 
 }
@@ -134,3 +135,4 @@ export const checkingAdminAuth = async (req, res) => {
 
     }
 }
+

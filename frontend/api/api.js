@@ -33,12 +33,12 @@ api.interceptors.response.use(
     (response) => response.data,
     async (error) => {
         const originalRequest = error.config;
+        console.log(error.response.data)
 
         // If error is 401 and tokenExpired flag is true
         if (error.response?.status === 401 && 
             error.response?.data?.tokenExpired && 
             !originalRequest._retry) {
-
             // If already refreshing, queue this request
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -70,7 +70,7 @@ api.interceptors.response.use(
                 isRefreshing = false;
 
                 // Redirect to login or dispatch logout action
-                window.location.href = '/login';
+                window.location.href = '/admin-login';
                 
                 return Promise.reject(refreshError);
             }

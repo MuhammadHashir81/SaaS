@@ -12,12 +12,6 @@ const app = express()
 app.use(cookieParser())
 
 
-configDotenv()
-// db connection
-connectDB()
-seedAdmin()
-
-
 const port = process.env.API_URL || 3000
 
 app.use(express.json())
@@ -29,10 +23,16 @@ app.use(cors(
 ));
 
 
+configDotenv()
+// db connection
+connectDB()
+seedAdmin()
+
+
+
+
 // admin auth routers
 app.use('/api/admin',adminAuthRouter)
-
-
 
   
 // customer route

@@ -7,7 +7,6 @@
     import { useNavigate } from 'react-router-dom';
 
 
-
     const Customers = () => {
         const navigate = useNavigate()
         
@@ -67,7 +66,8 @@
                 strn: userCredentials.strn,
                 ntn: userCredentials.ntn
             })
-            setCustomers(prev => [...prev, response.data]) // Add new customer to existing list
+            console.log(response)
+            await handleGetCustomers()
 
         }
 

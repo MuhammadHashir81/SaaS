@@ -9,6 +9,7 @@ import Products from './pages/admin/Products';
 import Customers from './pages/admin/Customers';
 import Outflows from './pages/admin/Outflows';
 import EditCustomer from './pages/admin/EditCustomer';
+import EditProduct from './pages/admin/EditProduct';
 
 const App = () => {
     return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path='customers' element={<Customers/> }/>
         <Route path='outflows' element={<Outflows/> }/>
         <Route path='edit/:id' element={<EditCustomer/> }/>
+        <Route path='edit-product/:id' element={<EditProduct/> }/>
         </Route>
 
         <Route path='/admin-login' element={<AdminLogin/>}/>

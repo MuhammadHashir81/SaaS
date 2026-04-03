@@ -8,7 +8,7 @@ configDotenv()
 const app = express()
 export const connectDB = async () => {
     try {
-        await mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.MONGO_URI/DB_Name}`);
+        await mongoose.connect(`${process.env.MONGO_URI}${DB_Name}`);
         console.log('database connected')
         app.on('error',()=>{
             console.log('error',error)

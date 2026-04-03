@@ -6,8 +6,8 @@ export const adminAuthRouter = Router()
 
 
 adminAuthRouter.post('/login',loginUser)
-adminAuthRouter.post('/check',verifyAdmin, checkingAdminAuth)
-adminAuthRouter.post('/refresh-admin-access-token', verifyAdmin ,refreshAccessToken)
+adminAuthRouter.get('/check',verifyAdmin, checkingAdminAuth)
+adminAuthRouter.post('/refresh-admin-access-token', refreshAccessToken)
 
 
 

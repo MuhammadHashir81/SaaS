@@ -10,14 +10,14 @@ const productSchema = new mongoose.Schema({
     packing: {
         type: String,
     },
-    bathNo: {
+    batchNo: {
         type: String
     },
     barcode: {
         type: String
     },
 },
-    {}
+    {timestamps:true}
 )
 
 const Product = mongoose.model('Product', productSchema)

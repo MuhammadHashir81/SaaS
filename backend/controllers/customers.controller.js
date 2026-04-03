@@ -6,7 +6,14 @@ import { Customer } from "../models/customer.model.js"
 const handleGetAllCustomers = async (req, res) => {
     try {
         const customers = await Customer.find()
-        res.status(200).json({
+
+        if(!customers){
+            return res.status(404).json({
+                success:false,
+                data:'no customers yet',
+            })
+        }
+        return res.status(200).json({
             success:true,
             data:customers
         })
