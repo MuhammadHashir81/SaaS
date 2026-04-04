@@ -6,6 +6,7 @@ import { productSchema } from "../validations/product.validation.js"
 const handleGetAllProducts = async (req, res) => {
     try {
         const page  = Number(req.query.page) || 1
+        console.log(page)
         const  limit  = Number(req.query.limit) || 10
         const skip =   (page - 1) * limit  
 
@@ -57,15 +58,16 @@ const handleAddProduct = async (req, res) => {
             batchNo,
             barcode
         })
-        res.status(201).json({
+        return res.status(201).json({
             sucess: true,
-            message: 'packing created',
+            message: 'product added',
             data: savedPacking,
         })
 
 
     } catch (error) {
-        res.status(error).json({ error })
+        console.log(error)
+        res.status(500).json({ error })
     }
 
 }
@@ -118,4 +120,34 @@ const handleDeleteProduct = async (req, res) => {
     }
 
 }
-export { handleAddProduct, handleGetAllProducts, handleUpdateProduct, handleDeleteProduct }
+
+// searched products 
+const handleSearchedProducts = async(req,res)=>{
+    try {
+        const search = req.query.q
+        const searchedProducts = await Product.find({
+            $or:[
+              {name: {$regex:search, $options:'i'} },
+              {packing:  {$regex:search, $options:'i'}},
+              {barcode:  {$regex:search, $options:'i'}},
+              {batchNo:  {$regex:search, $options:'i'}},
+            ]
+        })
+        const totalCounts = await Product.countDocuments({
+            $or:[
+              {name: {$regex:search, $options:'i'} },
+              {packing:  {$regex:search, $options:'i'}},
+              {barcode:  {$regex:search, $options:'i'}},
+              {batchNo:  {$regex:search, $options:'i'}},
+            ]
+        })
+        res.status(200).json({
+            success:false,
+            data:searchedProducts,
+            totalProducts:totalCounts
+        })
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+}
+export { handleAddProduct, handleGetAllProducts, handleUpdateProduct, handleDeleteProduct,handleSearchedProducts }

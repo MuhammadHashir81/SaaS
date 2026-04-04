@@ -1,1 +1,2 @@
 1- fix zod validation for ntn strn location and email 
+2- when I am searching products all the productss are getting loaded and secondly when I a stop searching unexpected behaviour happening like the data of function handlegetallproducts is supposed to display on the screen which is not happening 
