@@ -3,7 +3,7 @@ import { MdHome } from 'react-icons/md'
 import { Table } from 'antd';
 import { api } from '../../../api/api';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastBar, Toaster } from 'react-hot-toast';
+import { toast,  Toaster } from 'react-hot-toast';
 const Products = () => {
 
   const navigate = useNavigate()

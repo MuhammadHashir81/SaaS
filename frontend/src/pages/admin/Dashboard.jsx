@@ -212,7 +212,7 @@ const topProducts = [
             {ranges.map((range) => (
               <button
                 onClick={() => setSelected(range)}
-                className={` font-primary w-fit px-3 py-1 rounded-md color-white  ${selected === range ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}
+                className={` cursor-pointer font-primary w-fit px-3 py-1 rounded-md color-white  ${selected === range ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}
               >
                 {range}
               </button>

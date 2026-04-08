@@ -98,7 +98,7 @@ const handleUpdateProduct = async (req, res) => {
     }
 }
 
-// handle delete products
+// handle delete products   
 
 const handleDeleteProduct = async (req, res) => {
     try {
@@ -150,4 +150,5 @@ const handleSearchedProducts = async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 }
+
 export { handleAddProduct, handleGetAllProducts, handleUpdateProduct, handleDeleteProduct,handleSearchedProducts }

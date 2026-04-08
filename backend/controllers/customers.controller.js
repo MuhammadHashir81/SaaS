@@ -43,18 +43,18 @@ const handleAddCustomers = async (req, res) => {
         const { name, location, email, phone, strn, ntn } = req.body
         console.log(name, location, email, phone, strn, ntn)
         const result = customerSchema.safeParse(req.body)
-        // if (!result.success) {
-        //     const firstError = result.error.issues[0].message  // ← only first error
-        //     return res.status(400).json({
-        //         success: false,
-        //         error: { message: firstError }
-        //     })
-        // }
+    
+        if(!result.success){
         const firstIssue = result.error.issues[0]
-        return res.status(400).json({
+        // const firstIssue = result.error
+         
+
+         return res.status(400).json({
             success: false,
             error: { message: firstIssue.message, field: firstIssue.path[0] }
         })
+        }
+
 
         const customers = await Customer.create({
             name,
@@ -68,17 +68,19 @@ const handleAddCustomers = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: 'Customer created successfully',
+            message: 'Customer added',
             data: customers
         })
         console.log(name, email)
 
     } catch (error) {
-        res.status(500).json({ message: 'something went wrong' })
+        console.log(error.message)
+        res.status(500).json({ error:error.message })
 
     }
 
 }
+
 // update customer
 const handleUpdateCustomers = async (req, res) => {
     const { name, location, email, phone, strn, ntn } = req.body
@@ -127,21 +129,36 @@ const handleDeleteCustomer = async (req, res) => {
 }
 
 
-
-
-
-
-
-
 // handle search customers 
 const handleSearchedCustomers = async (req, res) => {
     try {
-        // const search = req.query.q
+        const search = req.query.q
+        const findCustomers = await Customer.find({
+            $or:[
+                {name:{$regex:search ,$options:'i'}},
+                {location:{$regex:search ,$options:'i'}},
+                {email:{$regex:search ,$options:'i'}},
+                {phone:{$regex:search ,$options:'i'}},
+            ]
+        })
+        const totalCustomers = await Customer.countDocuments({
+            $or:[
+                {name:{$regex:search ,$options:'i'}},
+                {location:{$regex:search ,$options:'i'}},
+                {email:{$regex:search ,$options:'i'}},
+                {phone:{$regex:search ,$options:'i'}},
+            ]
+        })
+        res.status(200).json({
+            success:true,
+            data:findCustomers,
+            totalCustomers:totalCustomers
+        })
 
     } catch (error) {
-
+      res.status(500).json({error:error.message})
     }
 
 }
 
-export { handleAddCustomers, handleGetAllCustomers, handleUpdateCustomers, handleDeleteCustomer }
+export { handleAddCustomers, handleGetAllCustomers, handleUpdateCustomers, handleDeleteCustomer,handleSearchedCustomers }

@@ -5,7 +5,7 @@ import { api } from '../../../api/api';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { toast,Toaster } from 'react-hot-toast';
 
 const Customers = () => {
     const navigate = useNavigate()
@@ -52,7 +52,7 @@ const Customers = () => {
         strn: '',
         ntn: ''
     })
-    const [error, setError] = useState()
+    const [error, setError] = useState('')
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
     const [totalPages, setTotalPages] = useState(1)
@@ -62,7 +62,7 @@ const Customers = () => {
     // handle api calls
 
     // create customer
-    const handleSubmit = async (e) => {
+    const handleAddCustomers = async (e) => {
         e.preventDefault()
         try {
 
@@ -75,7 +75,19 @@ const Customers = () => {
                 ntn: userCredentials.ntn
             })
             console.log(response)
+            toast.success(response.message)
             await handleGetCustomers()
+
+            setUserCredentials({
+                name: '',
+                location: '',
+                email: '',
+                phone: '',
+                strn: '',
+                ntn: ''
+            })
+            setError('')
+
         } catch (error) {
             setError(error.response.data.error)
             console.log(error.response.data)
@@ -157,10 +169,45 @@ const Customers = () => {
 
     }
 
+    // handle searched customers 
+
+    const handleSearchedCustomers = async () => {
+
+        try {
+            const response = await api.get(`/api/customer/search?q=${search}`)
+            console.log("handleSearchedCustomers",response)
+            setCustomers(response.data)
+            setTotalCustomers(response.totalCustomers)
+        } catch (error) {
+            console.log(error)
+
+        }
+
+    }
+
+    useEffect(() => {
+        if (!isSearching) return
+        const searchTimer = setTimeout(() => {
+            if (search.trim() !== '') {
+
+                handleSearchedCustomers()
+            }
+            else {
+                handleGetCustomers()
+            }
+            setIsSearching(false)
+        }, 1000);
+        
+        return () => {
+            clearTimeout(searchTimer)
+        }
+    }, [search])
+
     return (
         <div>
 
             <div className='flex items-center gap-1 mb-4'>
+                <Toaster/>
 
                 <MdHome size={15} />
                 <h6 className='font-primary font-medium'>Home</h6>
@@ -186,7 +233,7 @@ const Customers = () => {
 
             <div className='font-primary rounded-lg bg-white shadow-sm text-sm font-medium px-4 py-5 my-10'>
                 <h2 className='font-primary text-base font-semibold'> Add New Customer</h2>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleAddCustomers}>
                     <div className="grid grid-cols-2 gap-4 my-4">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="name">Name<span>*</span></label>
@@ -199,7 +246,7 @@ const Customers = () => {
                                 className="outline-1 outline-neutral-300 px-4 py-2 focus:outline-2 focus:outline-black rounded-sm"
                                 placeholder="enter"
                             />
-                            
+
                             <p className='text-red-500'>{error && error.field === 'name' && error.message}</p>
                         </div>
 
@@ -277,12 +324,11 @@ const Customers = () => {
                     <button className=' bg-green-500 px-4 py-2.5 text-white font-primary rounded-md cursor-pointer'>Add Customer</button>
                 </form>
 
-
-            </div>
+            
             {/* table data */}
             <div className='my-8'>
 
-                <Table columns={columns} dataSource={customers} size="middle" pagination={false} />
+            <Table columns={columns} dataSource={customers} size="middle" pagination={false} />
                 <div className='mt-5 flex justify-between gap-3 text-gray-600'>
                     <div>
                         <p> Total Customers {totalCustomers}</p>
@@ -295,6 +341,7 @@ const Customers = () => {
 
                 </div>
 
+</div>
             </div>
 
         </div>
