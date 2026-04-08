@@ -16,13 +16,29 @@ const NewInvoice = () => {
       rate: '',
     }
   ]);
-
   const [customers, setCustomers] = useState([])
   const [customerSearch, setCustomerSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState('')
-  const [selectedProduct,setSelectedProduct] = useState('')
-  const [products,setProducts] = useState([])
+  // const [selectedProduct, setSelectedProduct] = useState([])
+  const [products, setProducts] = useState([])
+
+  
+  // add another item functionality 
+
+  const handleAddAnotherItem = () => {
+    console.log('this is ')
+    setInvoiceItems((prev) => (
+      [...prev,
+      {
+        id: invoiceItems.length + 1,
+        product: '',
+        qty: '',
+        rate: '',
+      }]
+    ))
+  }
+
 
   // handle searched customers
   const handleSearchedCustomers = async () => {
@@ -50,7 +66,7 @@ const NewInvoice = () => {
   const handleSearchedProducts = async () => {
     try {
       const response = await api.get(`/api/product/get-all${productSearch}`)
-      console.log('products are ',response.data)
+      console.log('products are ', response.data)
       setProducts(response.data)
       console.log(response)
     } catch (error) {
@@ -73,26 +89,70 @@ const NewInvoice = () => {
 
   // handle product select
 
-  const handleProductSelect = (option) => {
-    setSelectedProduct(option)
+  const handleProductSelect = (value,record) => {
+    setInvoiceItems((prev)=>(
+        prev.map((item)=>(
+          item.id === record.id ? {...item, product:value} : item
+        ))
+        
+    ))
+    console.log(value,record)
   }
+  // handle quantity change 
+  const handleQuantitySelect = (e,record) => {
+    console.log("this is input change",e.target.value,record)
+    const value = e.target.value
+    setInvoiceItems((prev)=>(
+        prev.map((item)=>(
+          item.id === record.id ? {...item, qty:value} : item
+        ))
+        
+    ))
+  }
+  // handle rate change
 
+    const handleRateSelect = (e,record) => {
+    console.log("this is input change",e.target.value,record)
+    const value = e.target.value
+    setInvoiceItems((prev)=>(
+        prev.map((item)=>(
+          item.id === record.id ? {...item, rate:value} : item
+        ))
+        
+    ))
+  }
+  
+  // sold products api call  
+  
+  const handleSoldProducts = async (id)=>{
+     try {
+      const response = await api.post(`/api/product/sold/${id}`,
+        {
+          customer:customer,
+
+        }
+
+      )
+     } catch (error) {
+      
+     }
+  }
 
 
   const columns = [
     {
       title: 'Product',
       dataIndex: 'product',
-      render: () => (
+      render: (_,record) => (
 
         <Select
           style={{ width: '100%' }}
-          value={selectedProduct}
+          value={record.product || ''}
           placeholder="Select an option"
           showSearch={{
             optionFilterProp: ['label'],
           }}
-          onSelect={handleProductSelect}
+          onSelect={(value)=>handleProductSelect(value,record)}
           options={products.map((product) => (
             { value: `${product._id}`, label: `${product.name}` }
           ))}
@@ -103,10 +163,13 @@ const NewInvoice = () => {
     {
       title: 'Qty',
       dataIndex: 'qty',
-      render: () => (
+      render: (_,record) => (
         <Input
           type="number"
+          value={record.qty || ''}
+          onChange={(e)=> handleQuantitySelect(e,record)}
           style={{ width: '20%' }}
+
         />
 
       )
@@ -115,9 +178,11 @@ const NewInvoice = () => {
       title: 'Rate',
       dataIndex: 'rate',
       key: 'rate',
-      render: () => (
+      render: (_,record) => (
         <Input
           type="number"
+          value={record.rate || ''}
+          onChange={(e)=>handleRateSelect(e,record)}
           // handle 
           placeholder="rate"
           style={{ width: '20%' }}
@@ -189,8 +254,12 @@ const NewInvoice = () => {
             <h2 className='font-primary font-bold text-base'>Invoice Items</h2>
           </div>
 
+          <div className='flex flex-col '>
           <Table columns={columns} dataSource={invoiceItems} size="middle" pagination={false} />
-          <span className='text-blue-500 flex items-center gap-1 cursor-pointer'><FaPlus/> Add Item</span>
+          <span onClick={handleAddAnotherItem} className='text-blue-500 flex items-center gap-1 cursor-pointer'><FaPlus /> Add Item</span>
+          <button onClick={handleSoldProducts} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700'>Save Invoice</button>
+          </div>
+
 
 
         </div>
