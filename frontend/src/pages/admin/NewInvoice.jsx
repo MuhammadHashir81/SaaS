@@ -10,7 +10,7 @@ import { api } from '../../../api/api';
 const NewInvoice = () => {
   const [invoiceItems, setInvoiceItems] = useState([
     {
-      id: '',
+      productId: '',
       product: '',
       qty: '',
       rate: '',
@@ -31,7 +31,7 @@ const NewInvoice = () => {
     setInvoiceItems((prev) => (
       [...prev,
       {
-        id: "",
+        productId: "",
         product: '',
         qty: '',
         rate: '',
@@ -93,10 +93,12 @@ const NewInvoice = () => {
 
   const handleProductSelect = (value, record) => {
     console.log("thi isisi", value, record)
+    const selectedProduct = products.find(product => product._id === value);
+    console.log(selectedProduct)
 
     setInvoiceItems((prev) => (
       prev.map((item) => (
-        item._id === value ? { ...item, product: value } : item
+        item === record ? { ...item, productId: value, product: selectedProduct?.name } : item
       ))
 
     ))
@@ -110,7 +112,7 @@ const NewInvoice = () => {
     const value = e.target.value
     setInvoiceItems((prev) => (
       prev.map((item) => (
-        item.id === record.id ? { ...item, qty: value } : item
+        item === record ? { ...item, qty: value } : item
       ))
 
     ))
@@ -122,7 +124,7 @@ const NewInvoice = () => {
     const value = e.target.value
     setInvoiceItems((prev) => (
       prev.map((item) => (
-        item.id === record.id ? { ...item, rate: value } : item
+        item === record ? { ...item, rate: value } : item
       ))
 
     ))
@@ -157,29 +159,11 @@ const NewInvoice = () => {
           showSearch={{
             optionFilterProp: ['label'],
           }}
-          onSelect={(value)=>handleProductSelect(value,record)}
+          onSelect={(value) => handleProductSelect(value, record)}
           options={products.map((product) => (
             { value: `${product._id}`, label: `${product.name}` }
           ))}
         />
-        // <>
-
-        //   <select
-        //     name="cars"
-        //     id="cars"
-        //     onChange={(e) => handleProductSelect(e.target.value, record)}
-        //     value={record.product || ''}
-        //   >
-        //     {
-        //       products.map((product) => (
-        //         <option key={product._id} value={product._id}>
-        //           {product.name}
-        //         </option>
-        //       ))
-        //     }
-        //   </select>
-        // </>
-
       )
     },
     {
