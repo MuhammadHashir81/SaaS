@@ -10,7 +10,7 @@ import { api } from '../../../api/api';
 const NewInvoice = () => {
   const [invoiceItems, setInvoiceItems] = useState([
     {
-      id: 1,
+      id: '',
       product: '',
       qty: '',
       rate: '',
@@ -20,10 +20,10 @@ const NewInvoice = () => {
   const [customerSearch, setCustomerSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState('')
-  // const [selectedProduct, setSelectedProduct] = useState([])
   const [products, setProducts] = useState([])
+  const [customerId, setCustomerId] = useState(null)
 
-  
+
   // add another item functionality 
 
   const handleAddAnotherItem = () => {
@@ -31,7 +31,7 @@ const NewInvoice = () => {
     setInvoiceItems((prev) => (
       [...prev,
       {
-        id: invoiceItems.length + 1,
+        id: "",
         product: '',
         qty: '',
         rate: '',
@@ -85,57 +85,62 @@ const NewInvoice = () => {
 
   const handleCustomerSelect = (option) => {
     setSelectedCustomer(option)
+    setCustomerId(option)
+    console.log(option)
   }
 
   // handle product select
 
-  const handleProductSelect = (value,record) => {
-    setInvoiceItems((prev)=>(
-        prev.map((item)=>(
-          item.id === record.id ? {...item, product:value} : item
-        ))
-        
+  const handleProductSelect = (value, record) => {
+    console.log("thi isisi", value, record)
+
+    setInvoiceItems((prev) => (
+      prev.map((item) => (
+        item._id === value ? { ...item, product: value } : item
+      ))
+
     ))
-    console.log(value,record)
   }
+
+
+
   // handle quantity change 
-  const handleQuantitySelect = (e,record) => {
-    console.log("this is input change",e.target.value,record)
+  const handleQuantitySelect = (e, record) => {
+    console.log("this is input change", e.target.value, record)
     const value = e.target.value
-    setInvoiceItems((prev)=>(
-        prev.map((item)=>(
-          item.id === record.id ? {...item, qty:value} : item
-        ))
-        
+    setInvoiceItems((prev) => (
+      prev.map((item) => (
+        item.id === record.id ? { ...item, qty: value } : item
+      ))
+
     ))
   }
   // handle rate change
 
-    const handleRateSelect = (e,record) => {
-    console.log("this is input change",e.target.value,record)
+  const handleRateSelect = (e, record) => {
+    console.log("this is input change", e.target.value, record)
     const value = e.target.value
-    setInvoiceItems((prev)=>(
-        prev.map((item)=>(
-          item.id === record.id ? {...item, rate:value} : item
-        ))
-        
+    setInvoiceItems((prev) => (
+      prev.map((item) => (
+        item.id === record.id ? { ...item, rate: value } : item
+      ))
+
     ))
   }
-  
+
   // sold products api call  
-  
-  const handleSoldProducts = async (id)=>{
-     try {
-      const response = await api.post(`/api/product/sold/${id}`,
-        {
-          customer:customer,
 
-        }
-
-      )
-     } catch (error) {
-      
-     }
+  const handleInvoice = async () => {
+    try {
+      const response = await api.post(`/api/product/invoice/${customerId}`, {
+        customer: selectedCustomer,
+        product: invoiceItems
+      })
+      console.log(response)
+      setCustomerId(null)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
 
@@ -143,7 +148,7 @@ const NewInvoice = () => {
     {
       title: 'Product',
       dataIndex: 'product',
-      render: (_,record) => (
+      render: (_, record) => (
 
         <Select
           style={{ width: '100%' }}
@@ -157,17 +162,34 @@ const NewInvoice = () => {
             { value: `${product._id}`, label: `${product.name}` }
           ))}
         />
+        // <>
+
+        //   <select
+        //     name="cars"
+        //     id="cars"
+        //     onChange={(e) => handleProductSelect(e.target.value, record)}
+        //     value={record.product || ''}
+        //   >
+        //     {
+        //       products.map((product) => (
+        //         <option key={product._id} value={product._id}>
+        //           {product.name}
+        //         </option>
+        //       ))
+        //     }
+        //   </select>
+        // </>
 
       )
     },
     {
       title: 'Qty',
       dataIndex: 'qty',
-      render: (_,record) => (
+      render: (_, record) => (
         <Input
           type="number"
           value={record.qty || ''}
-          onChange={(e)=> handleQuantitySelect(e,record)}
+          onChange={(e) => handleQuantitySelect(e, record)}
           style={{ width: '20%' }}
 
         />
@@ -178,11 +200,11 @@ const NewInvoice = () => {
       title: 'Rate',
       dataIndex: 'rate',
       key: 'rate',
-      render: (_,record) => (
+      render: (_, record) => (
         <Input
           type="number"
           value={record.rate || ''}
-          onChange={(e)=>handleRateSelect(e,record)}
+          onChange={(e) => handleRateSelect(e, record)}
           // handle 
           placeholder="rate"
           style={{ width: '20%' }}
@@ -255,9 +277,9 @@ const NewInvoice = () => {
           </div>
 
           <div className='flex flex-col '>
-          <Table columns={columns} dataSource={invoiceItems} size="middle" pagination={false} />
-          <span onClick={handleAddAnotherItem} className='text-blue-500 flex items-center gap-1 cursor-pointer'><FaPlus /> Add Item</span>
-          <button onClick={handleSoldProducts} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700'>Save Invoice</button>
+            <Table columns={columns} dataSource={invoiceItems} size="middle" pagination={false} />
+            <span onClick={handleAddAnotherItem} className='text-blue-500 flex items-center gap-1 cursor-pointer'><FaPlus /> Add Item</span>
+            <button onClick={handleInvoice} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700'>Save Invoice</button>
           </div>
 
 

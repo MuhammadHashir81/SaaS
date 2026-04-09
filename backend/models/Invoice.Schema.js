@@ -1,5 +1,28 @@
 import mongoose from "mongoose";
-import { Schema } from "mongoose";
+    import { Schema } from "mongoose";
+
+
+const invoiceItemSchema = new mongoose.Schema({
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+    },
+
+    rate: {
+        type: String,
+        required: true
+    },
+
+    qty: {
+        type: String,
+        required: true
+
+    },
+    totalAmount: {
+        type: Number,
+    }
+})
 
 const invoiceSchema = new mongoose.Schema({
     customerId: {
@@ -11,37 +34,17 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    product: {
-        productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'Product'
+    product: [invoiceItemSchema],
 
-        },
-        type: String,
-        required: true
-    },
-    quantity: {
-        type: String,
-        required: true
-    },
-    rate: {
-        type: String,
-        required: true
-    },
-    totalAmount: {
-        type: Number,
-        required: true
-    }
 }, { timestamps: true })
 
 
-invoiceSchema.pre('save', function(next) {
+invoiceItemSchema.pre('save', function (next) {
     this.totalAmount = this.quantity * this.rate;
     next();
 });
 
 
 const Invoice = mongoose.model('invoice', invoiceSchema)
-
 export { Invoice }
+

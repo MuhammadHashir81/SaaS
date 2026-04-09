@@ -11,6 +11,6 @@ productRouter.get('/get-all', verifyAdmin, handleGetAllProducts)
 productRouter.put('/edit/:id', verifyAdmin, handleUpdateProduct)
 productRouter.delete('/delete/:id', verifyAdmin, handleDeleteProduct)
 productRouter.get('/search', verifyAdmin, handleSearchedProducts)
-productRouter.post('/sold/:id', verifyAdmin, handleInvoiceProducts)
+productRouter.post('/invoice/:customerId', verifyAdmin, handleInvoiceProducts)
 
 export { productRouter }

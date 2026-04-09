@@ -154,22 +154,20 @@ const handleSearchedProducts = async (req, res) => {
 
 
 // handle sold products 
-
-const handleInvoiceProducts = async () => {
+const handleInvoiceProducts = async (req,res) => {
     const { customerId } = req.params
-    const { customer, product, quantity, rate} = req.body
+    const { product,customer } = req.body
+    console.log("this is the data we are getting",product, customer)
     try {
-        const sold = await Invoice.create({
+        const invoice = await Invoice.create({
             customerId,
             customer,
-            product,
-            quantity,
-            rate
+            product
         })
-        res.status(200).json({
+        res.status(200).json({  
             success: true,
             message: 'product sold',
-            data: sold
+            data: invoice
         })
     } catch (error) {
         console.log(error.message)
