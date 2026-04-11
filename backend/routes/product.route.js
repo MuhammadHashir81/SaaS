@@ -1,5 +1,5 @@
 
-import { handleAddProduct, handleDeleteProduct, handleGetAllProducts, handleSearchedProducts, handleInvoiceProducts, handleUpdateProduct } from "../controllers/product.controller.js";
+import { handleAddProduct, handleDeleteProduct, handleGetAllProducts, handleSearchedProducts,  handleUpdateProduct } from "../controllers/product.controller.js";
 import { Router } from "express";
 import { verifyAdmin } from "../middlware/adminMiddleware.js";
 import { productSchema } from "../validations/product.validation.js";
@@ -11,6 +11,5 @@ productRouter.get('/get-all', verifyAdmin, handleGetAllProducts)
 productRouter.put('/edit/:id', verifyAdmin, handleUpdateProduct)
 productRouter.delete('/delete/:id', verifyAdmin, handleDeleteProduct)
 productRouter.get('/search', verifyAdmin, handleSearchedProducts)
-productRouter.post('/invoice/:customerId', verifyAdmin, handleInvoiceProducts)
 
 export { productRouter }

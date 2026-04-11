@@ -7,6 +7,7 @@ import { connectDB } from './db/connectionDB.js'
 import { seedAdmin } from './controllers/user.auth.controller.js'
 import { customerRoute } from './routes/customer.route.js'
 import { productRouter } from './routes/product.route.js'
+import { invoiceRouter } from './routes/invoice.route.js'
 
 const app = express()
 app.use(cookieParser())
@@ -31,16 +32,19 @@ seedAdmin()
 
 
 
-// admin auth routers
+// admin auth route
 app.use('/api/admin',adminAuthRouter)
 
   
 // customer route
 app.use('/api/customer',customerRoute)
 
-// product router
+// product route
 app.use('/api/product',productRouter)
 
+// invoice route
+
+app.use('/api/product/invoice',invoiceRouter)
 app.get('/',(res,req)=>{
   res.send('SaaS')
 })

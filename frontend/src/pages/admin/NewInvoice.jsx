@@ -5,7 +5,7 @@ import { MdHome } from 'react-icons/md'
 import { Divider, Table } from 'antd';
 import { ConfigProvider } from 'antd'
 import { api } from '../../../api/api';
-
+import { toast, Toaster } from 'react-hot-toast';
 
 const NewInvoice = () => {
   const [invoiceItems, setInvoiceItems] = useState([
@@ -21,7 +21,8 @@ const NewInvoice = () => {
   const [productSearch, setProductSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState('')
   const [products, setProducts] = useState([])
-  const [customerId, setCustomerId] = useState(null)
+  const [customerId, setCustomerId] = useState(1)
+  const [discount,setDiscount] = useState('')
 
 
   // add another item functionality 
@@ -83,10 +84,12 @@ const NewInvoice = () => {
 
   // handle customer select 
 
-  const handleCustomerSelect = (option) => {
-    setSelectedCustomer(option)
-    setCustomerId(option)
-    console.log(option)
+  const handleCustomerSelect = (id) => {
+    const customer = customers.find(cus => cus._id === id);
+    console.log(customer)
+    // console.log(option)
+    setSelectedCustomer(customer.name)
+    setCustomerId(customer._id)
   }
 
   // handle product select
@@ -134,14 +137,28 @@ const NewInvoice = () => {
 
   const handleInvoice = async () => {
     try {
-      const response = await api.post(`/api/product/invoice/${customerId}`, {
+      const response = await api.post(`/api/product/invoice/create/${customerId}`, {
         customer: selectedCustomer,
         product: invoiceItems
       })
+
       console.log(response)
-      setCustomerId(null)
+      setInvoiceItems([
+        {
+          productId: '',
+          product: '',
+          qty: '',
+          rate: '',
+        }
+      ])
+      setSelectedCustomer('')
+
+      setCustomerId(1)
+
+      toast.success(response.message)
     } catch (error) {
-      console.log(error)
+      toast.error(error.response.data.error)
+      console.log(error.response.data)
     }
   }
 
@@ -151,19 +168,21 @@ const NewInvoice = () => {
       title: 'Product',
       dataIndex: 'product',
       render: (_, record) => (
+        <div>
+          <Select
+            style={{ width: '100%' }}
+            value={record.product || ''}
+            placeholder="Select an option"
+            showSearch={{
+              optionFilterProp: ['label'],
+            }}
+            onSelect={(value) => handleProductSelect(value, record)}
+            options={products.map((product) => (
+              { value: `${product._id}`, label: `${product.name}` }
+            ))}
+          />
+        </div>
 
-        <Select
-          style={{ width: '100%' }}
-          value={record.product || ''}
-          placeholder="Select an option"
-          showSearch={{
-            optionFilterProp: ['label'],
-          }}
-          onSelect={(value) => handleProductSelect(value, record)}
-          options={products.map((product) => (
-            { value: `${product._id}`, label: `${product.name}` }
-          ))}
-        />
       )
     },
     {
@@ -224,6 +243,7 @@ const NewInvoice = () => {
       <div>
         <div className='flex items-center gap-1 mb-4'>
 
+          <Toaster />
           <MdHome size={15} />
           <h6 className='font-primary font-medium'>Home</h6>
         </div>
@@ -235,19 +255,22 @@ const NewInvoice = () => {
           <h2 className='font-primary font-semibold text-lg'>Customer Information</h2>
           <div className='flex mt-3 mb-5 justify-between w-[600px]'>
 
+            <div>
 
-            <Select
-              style={{ width: 250 }}
-              placeholder="Select an option"
-              value={selectedCustomer}
-              showSearch={{
-                optionFilterProp: ['label'],
-              }}
-              onSelect={handleCustomerSelect}
-              options={customers.map((customer) => (
-                { value: `${customer._id}`, label: `${customer.name}` }
-              ))}
-            />
+              <Select
+                style={{ width: 250, }}
+                placeholder="Select an option"
+                value={selectedCustomer}
+                showSearch={{
+                  optionFilterProp: ['label'],
+                }}
+                onSelect={(e)=>handleCustomerSelect(e)}
+                options={customers.map((customer) => (
+                  { value: `${customer._id}`, label: `${customer.name}` }
+                ))}
+              />
+            </div>
+
             <button className='font-primary  flex items-center gap-2 text-blue-500 cursor-pointer'>
               <FaPlus />
               Add New Customer

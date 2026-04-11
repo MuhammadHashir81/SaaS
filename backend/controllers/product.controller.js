@@ -1,6 +1,7 @@
 import { Product } from "../models/product.model.js"
-import { Invoice } from "../models/Invoice.Schema.js"
+import { Invoice } from "../models/Invoice.model.js"
 import { productSchema } from "../validations/product.validation.js"
+import { Customer } from "../models/customer.model.js"
 
 
 // handle get all products
@@ -153,27 +154,6 @@ const handleSearchedProducts = async (req, res) => {
 }
 
 
-// handle sold products 
-const handleInvoiceProducts = async (req,res) => {
-    const { customerId } = req.params
-    const { product,customer } = req.body
-    console.log("this is the data we are getting",product, customer)
-    try {
-        const invoice = await Invoice.create({
-            customerId,
-            customer,
-            product
-        })
-        res.status(200).json({  
-            success: true,
-            message: 'product sold',
-            data: invoice
-        })
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).json({ error: error.message })
-    }
 
-}
 
-export { handleAddProduct, handleGetAllProducts, handleUpdateProduct, handleDeleteProduct, handleSearchedProducts, handleInvoiceProducts }
+export { handleAddProduct, handleGetAllProducts, handleUpdateProduct, handleDeleteProduct, handleSearchedProducts }

@@ -1,10 +1,11 @@
-import React from 'react'
+import {useState,useEffect} from 'react'
 import { MdHome } from 'react-icons/md'
 import { DatePicker } from 'antd';
 import {  Table } from 'antd';
 import { FaPlus } from 'react-icons/fa6';
 import {ConfigProvider} from 'antd'
 import {NavLink} from 'react-router-dom'
+import { api } from '../../../api/api';
 const onChange = (date, dateString) => {
   console.log(date, dateString);
 };
@@ -12,11 +13,11 @@ const onChange = (date, dateString) => {
 const columns = [
   {
     title: 'Customer',
-    dataIndex: 'name',
+    dataIndex: 'customer',
   },
   {
-    title: 'Address',
-    dataIndex: 'address',
+    title: 'Location',
+    dataIndex: 'location',
   },
 {
     title: 'Date',
@@ -24,7 +25,7 @@ const columns = [
   },
 {
     title: 'subtotal',
-    dataIndex: 'subtotal',
+    dataIndex: 'subTotal',
   },
 {
     title: 'Discount',
@@ -32,7 +33,7 @@ const columns = [
   },
 {
     title: 'Total',
-    dataIndex: 'total',
+    dataIndex: 'subTotal',
   },
   {
     title: 'Actions',
@@ -41,28 +42,28 @@ const columns = [
 
 ];
 
-const data = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-  },
-];
-
 const Invoices = () => {
+  const [invoices,setInvoices] = useState([])
+
+  
+// handle get all invoices
+
+const handleGetAllInvoices = async() => {
+  try {
+     const response = await api.get(`/api/product/invoice/get-all`)
+     setInvoices(response.data)
+     console.log(response.data)
+  } catch (error) {
+    console.log(error)
+    
+  }
+
+}
+
+useEffect(()=>{
+    handleGetAllInvoices()
+},[])
+
   return (
       <ConfigProvider
             theme={{
@@ -115,7 +116,7 @@ const Invoices = () => {
 
               {/* table  */}
 
-       <Table columns={columns} dataSource={data} size="middle" />
+       <Table columns={columns} dataSource={invoices} size="middle" pagination={false} />
 
       
       </div>      

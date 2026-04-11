@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 
 const invoiceItemSchema = new mongoose.Schema({
     productId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,   
         ref: 'Product',
         required: true
     },
@@ -43,6 +43,9 @@ const invoiceSchema = new mongoose.Schema({
     
     subTotal:{
         type:String,
+    },
+    discount:{
+        type:String,
     }
 
 }, { timestamps: true })
@@ -56,6 +59,7 @@ invoiceSchema.pre('save', async function () {
         return sum + item.rate * item.qty
     },0)
 
+    // this.subTotal = subTotal - discount
 });
 
     
