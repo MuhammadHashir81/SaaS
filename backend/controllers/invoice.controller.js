@@ -164,7 +164,7 @@ const handleGetAllInvoices = async (req, res) => {
                     rate: '$product.rate',
                     discount: '$product.discount',
                     location: '$customerInfo.location',
-                    date: '$customerInfo.createdAt',
+                    date: '$createdAt',
                 }
             }
 
@@ -192,52 +192,97 @@ const handleGetAllInvoices = async (req, res) => {
 const handleSearchInvoices = async (req, res) => {
     try {
         const { customer, startDate, endDate, minTotal, maxTotal } = req.query;
-        console.log(customer, startDate, endDate, minTotal, maxTotal)
+
+        const pipeline = [
+            {
+                $lookup: {
+                    from: 'customers',
+                    localField: 'customerId',
+                    foreignField: '_id',
+                    as: 'customerInfo'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$customerInfo',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: '$product',
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ];
 
         const matchStage = {};
 
-        if (customer) {
-            matchStage.customer = { $regex: customer, $options: "i" };
+        if (customer?.trim()) {
+            matchStage['customerInfo.name'] = { $regex: customer.trim(), $options: "i" };
         }
 
-        if (minTotal !== undefined || maxTotal !== undefined) {
-            matchStage.total = {};
+        const hasMinTotal = minTotal !== undefined && minTotal !== "";
+        const hasMaxTotal = maxTotal !== undefined && maxTotal !== "";
 
-            if (minTotal !== undefined) {
-                matchStage.total.$gte = Number(minTotal);
+        if (hasMinTotal || hasMaxTotal) {
+            const totalMatch = {};
+
+            if (hasMinTotal) {
+                totalMatch.$gte = Number(minTotal);
             }
 
-            if (maxTotal !== undefined) {
-                matchStage.total.$lte = Number(maxTotal);
+            if (hasMaxTotal) {
+                totalMatch.$lte = Number(maxTotal);
+            }
+
+            if (Object.keys(totalMatch).length > 0) {
+                matchStage['product.total'] = totalMatch;
             }
         }
 
         if (startDate || endDate) {
-            matchStage.createdAt = {};
+            const dateMatch = {};
 
             if (startDate) {
-                matchStage.createdAt.$gte = new Date(startDate);
+                dateMatch.$gte = new Date(startDate);
             }
 
             if (endDate) {
-                matchStage.createdAt.$lte = new Date(endDate);
+                const inclusiveEndDate = new Date(endDate);
+                inclusiveEndDate.setHours(23, 59, 59, 999);
+                dateMatch.$lte = inclusiveEndDate;
+            }
+
+            if (Object.keys(dateMatch).length > 0) {
+                matchStage.createdAt = dateMatch;
             }
         }
 
-        const pipeline = [
-            { $match: matchStage },
+        if (Object.keys(matchStage).length > 0) {
+            pipeline.push({ $match: matchStage });
+        }
+
+        pipeline.push(
             { $sort: { createdAt: -1 } },
             {
                 $project: {
                     _id: 1,
-                    name: 1,
-                    customer: 1,
-                    total: 1,
-                    category: 1,
-                    createdAt: 1,
+                    customerId: 1,
+                    customer: '$customerInfo.name',
+                    customerEmail: '$customerInfo.email',
+                    customerPhone: '$customerInfo.phone',
+                    product: '$product.product',
+                    total: '$product.total',
+                    subTotal: '$product.subTotal',
+                    qty: '$product.qty',
+                    rate: '$product.rate',
+                    discount: '$product.discount',
+                    location: '$customerInfo.location',
+                    date: '$createdAt',
                 },
-            },
-        ];
+            }
+        );
 
         const invoices = await Invoice.aggregate(pipeline);
         console.log("these are all filtered invoices",invoices)

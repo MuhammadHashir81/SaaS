@@ -7,6 +7,7 @@ import { ConfigProvider } from 'antd'
 import { NavLink } from 'react-router-dom'
 import { api } from '../../../api/api';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 const Invoices = () => {
   const navigate = useNavigate()
   const [invoices, setInvoices] = useState([])
@@ -80,7 +81,7 @@ const Invoices = () => {
   const handleGetAllInvoices = async () => {
     try {
       const response = await api.get(`/api/product/invoice/get-all`)
-      setInvoices(response.data)
+      setInvoices(response.data || [])
       console.log("these are all invoices", response.data)
     } catch (error) {
       console.log(error)
@@ -107,11 +108,12 @@ const Invoices = () => {
     console.log("searching inovoices")
     try {
       const response = await api.get("/api/product/invoice/search", {
-        params: filters ,
+        params: filters,
       });
 
       console.log(response.data)
-      return response.data; // important
+      setInvoices(response.data || [])
+      return response.data;
     } catch (error) {
       console.log("Search invoices error:", error?.response?.data || error.message);
       throw error;
@@ -129,8 +131,19 @@ const handleChange = (field) => (e) => {
 const handleDateChange = (field) => (date, dateString) => {
   setFilters((prev) => ({
     ...prev,
-    [field]: dateString, // or date if your API expects ISO
+    [field]: dateString,
   }));
+};
+
+const handleResetFilters = () => {
+  setFilters({
+    customer: "",
+    startDate: "",
+    endDate: "",
+    minTotal: "",
+    maxTotal: "",
+  });
+  handleGetAllInvoices();
 };
 
   return (
@@ -176,29 +189,33 @@ const handleDateChange = (field) => (date, dateString) => {
             <input
               type="text"
               className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' placeholder='Customer name'
+              value={filters.customer}
               onChange={handleChange("customer")}
 
             />
 
             <DatePicker
+              value={filters.startDate ? dayjs(filters.startDate) : null}
               onChange={handleDateChange("startDate")}
               needConfirm />
 
             <DatePicker
-              onChange={handleDateChange("startDate")}
+              value={filters.endDate ? dayjs(filters.endDate) : null}
+              onChange={handleDateChange("endDate")}
               needConfirm />
             <input
               type="number"
-
+              value={filters.minTotal}
               onChange={handleChange("minTotal")}
               className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
 
             <input
               type="number"
+              value={filters.maxTotal}
               onChange={handleChange("maxTotal")}
               className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
             <button onClick={()=>handleSearchInvoices(filters)} className='cursor-pointer font-primary font-medium bg-blue-500 text-white rounded-md py-2'>search</button>
-            <button className='cursor-pointer font-primary font-medium bg-gray-200 rounded-md'>reset</button>
+            <button onClick={handleResetFilters} className='cursor-pointer font-primary font-medium bg-gray-200 rounded-md'>reset</button>
           </div>
 
 
