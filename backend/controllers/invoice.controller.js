@@ -102,6 +102,7 @@ const handleUpdateInvoice = async (req, res) => {
                 qty: incomingItem.qty ?? existingItem?.qty,
                 rate: incomingItem.rate ?? existingItem?.rate,
                 discount: incomingItem.discount ?? existingItem?.discount ?? 0,
+                soldAt: existingItem?.soldAt ?? new Date(),
             };
         });
 

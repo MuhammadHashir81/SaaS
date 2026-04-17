@@ -27,6 +27,11 @@ const invoiceItemSchema = new mongoose.Schema({
     discount:{
         type:Number,
     },
+
+    soldAt: {
+        type: Date,
+        default: Date.now
+    },
     
     subTotal: {
         type: Number,

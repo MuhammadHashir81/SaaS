@@ -8,6 +8,8 @@ import { seedAdmin } from './controllers/user.auth.controller.js'
 import { customerRoute } from './routes/customer.route.js'
 import { productRouter } from './routes/product.route.js'
 import { invoiceRouter } from './routes/invoice.route.js'
+import { outflowRouter } from './routes/outflow.route.js'
+import { dashboardRouter } from './routes/dashboard.route.js'
 
 const app = express()
 app.use(cookieParser())
@@ -45,6 +47,8 @@ app.use('/api/product',productRouter)
 // invoice route
 
 app.use('/api/product/invoice',invoiceRouter)
+app.use('/api/outflow',outflowRouter)
+app.use('/api/dashboard',dashboardRouter)
 app.get('/',(res,req)=>{
   res.send('SaaS')
 })
