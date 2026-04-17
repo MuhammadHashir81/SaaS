@@ -1,0 +1,240 @@
+    import { useParams, useLocation } from 'react-router-dom'
+    import { useEffect, useState } from 'react'
+    import { Input, Select } from 'antd';
+    import { FaPlus } from 'react-icons/fa6';
+    import { MdHome } from 'react-icons/md'
+    import { Divider, Table } from 'antd';
+    import { ConfigProvider } from 'antd'
+    import { api } from '../../../api/api';
+    import { toast, Toaster } from 'react-hot-toast';
+
+    const EditInvoice = () => {
+      const { id } = useParams()
+      const location = useLocation()
+      const state = location.state
+      console.log("this is the customer we are editing for this page", state)
+
+      const [invoiceItems, setInvoiceItems] = useState([
+        {
+          productId: state?._id,
+          product: state?.product,
+          qty: state?.qty,
+          rate: state?.rate,
+          discount:0
+        }
+      ]);
+      const [discount, setDiscount] = useState(state?.discount)
+      const [customers, setCustomers] = useState([])
+      const [productSearch, setProductSearch] = useState('')
+      const [selectedCustomer, setSelectedCustomer] = useState(state?.customer)
+      const [products, setProducts] = useState([])
+      const [customerId, setCustomerId] = useState(state?.customerId)
+
+
+
+      // handle quantity change 
+      const handleQuantitySelect = (e, record) => {
+        console.log("this is input change", e.target.value, record)
+        const value = e.target.value
+        setInvoiceItems((prev) => (
+          prev.map((item) => (
+            item === record ? { ...item, qty: value } : item
+          ))
+
+        ))
+      }
+      // handle rate change
+
+      const handleRateSelect = (e, record) => {
+        console.log("this is input change", e.target.value, record)
+        const value = e.target.value
+        setInvoiceItems((prev) => (
+          prev.map((item) => (
+            item === record ? { ...item, rate: value } : item
+          ))
+
+        ))
+      }
+
+      // update products api call  
+
+      const handleUpdateInvoice = async () => {
+        try {
+          const response = await api.put(`/api/product/invoice/edit/${customerId}`, {
+            customer: selectedCustomer,
+            product: invoiceItems,
+          })
+
+          console.log(response)
+          setInvoiceItems([
+            {
+              productId: '',
+              product: '',
+              qty: 0,
+              rate: 0,
+              discount:0
+            }
+          ])
+          setSelectedCustomer('')
+          setDiscount(0)
+
+          setCustomerId(1)
+
+          toast.success(response.message)
+        } catch (error) {
+          toast.error(error.response.data.error)
+          console.log(error.response.data)
+        }
+      }
+
+      const handleDiscountSelect = (e) => {
+        console.log("discount is changing ")
+        setDiscount(e.target.value)
+        const value = Number(e.target.value)
+        setInvoiceItems((prev) => (
+          prev.map((item) => (
+            { ...item, discount: value }
+          ))
+        ))
+      }
+
+
+
+      const columns = [
+        {
+          title: 'Product',
+          dataIndex: 'product',
+          render: (_, record) => (
+            <div>
+              <Select
+                style={{ width: '100%' }}
+                value={record.product || ''}
+                placeholder="Select an option"
+                showSearch={{
+                  optionFilterProp: ['label'],
+                }}
+              />
+            </div>
+
+          )
+        },
+        {
+          title: 'Qty',
+          dataIndex: 'qty',
+          render: (_, record) => (
+            <Input
+              type="number"
+              value={record.qty || ''}
+              onChange={(e) => handleQuantitySelect(e, record)}
+              style={{ width: '20%' }}
+
+            />
+
+          )
+        },
+        {
+          title: 'Rate',
+          dataIndex: 'rate',
+          key: 'rate',
+          render: (_, record) => (
+            <Input
+              type="number"
+              value={record.rate || ''}
+              onChange={(e) => handleRateSelect(e, record)}
+              // handle 
+              placeholder="rate"
+              style={{ width: '20%' }}
+            />
+          ),
+        },
+
+      ];
+
+
+
+
+
+      return (
+        <ConfigProvider
+          theme={{
+            components: {
+              DatePicker: {
+                activeBorderColor: 'black',
+                hoverBorderColor: 'black',
+                lineWidth: 1,
+                borderRadius: 4
+              },
+
+              Select: {
+                activeBorderColor: 'black',
+                hoverBorderColor: 'black',
+                lineWidth: 1,
+                borderRadius: 4
+              }
+            }
+          }}
+        >
+
+          <div>
+            <div className='flex items-center gap-1 mb-4'>
+
+              <Toaster />
+              <MdHome size={15} />
+              <h6 className='font-primary font-medium'>Home</h6>
+            </div>
+            <h2 className='font-primary text-base font-bold mb-2'>Edit Invoice</h2>
+
+            {/*  */}
+
+            <div className="rounded-lg bg-white shadow-sm px-8 py-10 my-10">
+              <h2 className='font-primary font-semibold text-lg'>Customer Information</h2>
+              <div className='flex mt-3 mb-5 justify-between w-[600px]'>
+
+                <div>
+
+                  <Select
+                    style={{ width: 250, }}
+                    placeholder="Select an option"
+                    value={selectedCustomer}
+                  />
+                </div>
+          
+              </div>
+
+              {/* Invoice items div */}
+
+              <div>
+                <h2 className='font-primary font-bold text-base'>Invoice Items</h2>
+              </div>
+
+              <div className='flex flex-col '>
+                <Table columns={columns} dataSource={invoiceItems} size="middle" pagination={false} />
+                <div className='flex flex-col items-end gap-3'>
+                  <div className='flex flex-col gap-0.5'>
+
+                    <label htmlFor="discount">Discount</label>
+                    <input
+                      type="number"
+                      id="discount"
+                      value={discount}
+                      onChange={(e) => handleDiscountSelect(e)}
+                      className="w-[200px] outline-1 outline-gray-300 focus:outline-2 focus:outline-black px-2.5 py-1 rounded-sm"
+
+                    />
+                  </div>
+
+                  <button onClick={handleUpdateInvoice} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700' >Save Invoice</button>
+                </div>
+
+              </div>
+
+
+
+            </div>
+
+          </div>
+        </ConfigProvider>
+      )
+    }
+
+    export default EditInvoice

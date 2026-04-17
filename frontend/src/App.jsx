@@ -10,6 +10,7 @@ import Customers from './pages/admin/Customers';
 import Outflows from './pages/admin/Outflows';
 import EditCustomer from './pages/admin/EditCustomer';
 import EditProduct from './pages/admin/EditProduct';
+import EditInvoice from './pages/admin/EditInvoice';
 
 const App = () => {
     return (
@@ -26,6 +27,7 @@ const App = () => {
         <Route path='outflows' element={<Outflows/> }/>
         <Route path='edit/:id' element={<EditCustomer/> }/>
         <Route path='edit-product/:id' element={<EditProduct/> }/>
+        <Route path='edit-invoice/:id' element={<EditInvoice/> }/>
         </Route>
 
         <Route path='/admin-login' element={<AdminLogin/>}/>

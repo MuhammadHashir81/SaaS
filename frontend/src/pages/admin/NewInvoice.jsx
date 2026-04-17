@@ -9,33 +9,35 @@ import { toast, Toaster } from 'react-hot-toast';
 
 const NewInvoice = () => {
   const [invoiceItems, setInvoiceItems] = useState([
+
     {
       productId: '',
       product: '',
-      qty: '',
-      rate: '',
+      qty: 0,
+      rate: 0,
+      discount: 0
     }
   ]);
+  const [discount, setDiscount] = useState(0)
   const [customers, setCustomers] = useState([])
   const [customerSearch, setCustomerSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState('')
   const [products, setProducts] = useState([])
   const [customerId, setCustomerId] = useState(1)
-  const [discount,setDiscount] = useState('')
 
 
   // add another item functionality 
 
   const handleAddAnotherItem = () => {
-    console.log('this is ')
     setInvoiceItems((prev) => (
       [...prev,
       {
         productId: "",
         product: '',
-        qty: '',
-        rate: '',
+        qty: 0,
+        rate: 0,
+        discount: 0
       }]
     ))
   }
@@ -95,7 +97,6 @@ const NewInvoice = () => {
   // handle product select
 
   const handleProductSelect = (value, record) => {
-    console.log("thi isisi", value, record)
     const selectedProduct = products.find(product => product._id === value);
     console.log(selectedProduct)
 
@@ -133,13 +134,26 @@ const NewInvoice = () => {
     ))
   }
 
+
+  // handle discount change
+
+  const handleDiscountSelect = (e) => {
+    const value = Number(e.target.value)
+    setDiscount(value)
+    setInvoiceItems((prev) => (
+      prev.map((item) => (
+        { ...item, discount: value }
+      ))
+    ))
+  }
+
   // sold products api call  
 
   const handleInvoice = async () => {
     try {
       const response = await api.post(`/api/product/invoice/create/${customerId}`, {
         customer: selectedCustomer,
-        product: invoiceItems
+        product: invoiceItems,
       })
 
       console.log(response)
@@ -147,12 +161,13 @@ const NewInvoice = () => {
         {
           productId: '',
           product: '',
-          qty: '',
-          rate: '',
+          qty: 0,
+          rate: 0,
+          discount:0
         }
       ])
+      setDiscount(0)
       setSelectedCustomer('')
-
       setCustomerId(1)
 
       toast.success(response.message)
@@ -214,7 +229,9 @@ const NewInvoice = () => {
         />
       ),
     },
+
   ];
+
 
 
 
@@ -264,7 +281,7 @@ const NewInvoice = () => {
                 showSearch={{
                   optionFilterProp: ['label'],
                 }}
-                onSelect={(e)=>handleCustomerSelect(e)}
+                onSelect={(e) => handleCustomerSelect(e)}
                 options={customers.map((customer) => (
                   { value: `${customer._id}`, label: `${customer.name}` }
                 ))}
@@ -286,7 +303,23 @@ const NewInvoice = () => {
           <div className='flex flex-col '>
             <Table columns={columns} dataSource={invoiceItems} size="middle" pagination={false} />
             <span onClick={handleAddAnotherItem} className='text-blue-500 flex items-center gap-1 cursor-pointer'><FaPlus /> Add Item</span>
-            <button onClick={handleInvoice} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700'>Save Invoice</button>
+            <div className='flex flex-col items-end gap-3'>
+              <div className='flex flex-col gap-0.5'>
+
+                <label htmlFor="discount">Discount</label>
+                <input
+                  type="number"
+                  id="discount"
+                  value={discount}
+                  onChange={(e) => handleDiscountSelect(e)}
+                  className="w-[200px] outline-1 outline-gray-300 focus:outline-2 focus:outline-black px-2.5 py-1 rounded-sm"
+
+                />
+              </div>
+
+              <button onClick={handleInvoice} className='self-end bg-blue-600 font-primary text-white px-4 py-1.5 rounded-sm cursor-pointer hover:bg-blue-700'>Save Invoice</button>
+            </div>
+
           </div>
 
 

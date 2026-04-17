@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import {  useLocation, useNavigate, useParams } from 'react-router-dom'
 import { MdHome } from 'react-icons/md'
 import { api } from '../../../api/api'
@@ -8,7 +8,7 @@ const EditCustomer = () => {
     const { id } = useParams()
     const location = useLocation()
     const state = location.state
-    console.log(state)
+    
     const [userCredentials, setUserCredentials] = useState({
         name: state?.name|| '',
         location: state?.location || '' ,

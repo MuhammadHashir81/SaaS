@@ -4,28 +4,36 @@ import { Schema } from "mongoose";
 
 const invoiceItemSchema = new mongoose.Schema({
     productId: {
-        type: mongoose.Schema.Types.ObjectId,   
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
         required: true
     },
-    product:{
-        type:String,
-        required:true
+    product: {
+        type: String,
+        required: true
     },
 
     rate: {
-        type: String,
+        type: Number,
         required: true
     },
 
     qty: {
-        type: String,
+        type: Number,
         required: true
 
     },
+
+    discount:{
+        type:Number,
+    },
     
-    totalAmount: {
-        type: String,
+    subTotal: {
+        type: Number,
+    },
+
+    total:{
+        type:Number
     }
 })
 
@@ -40,29 +48,23 @@ const invoiceSchema = new mongoose.Schema({
         required: true
     },
     product: [invoiceItemSchema],
-    
-    subTotal:{
-        type:String,
-    },
-    discount:{
-        type:String,
-    }
+
 
 }, { timestamps: true })
 
 
 invoiceSchema.pre('save', async function () {
     this.product.forEach((item) => {
-        item.totalAmount = item.qty * item.rate;
+       return item.subTotal = item.qty * item.rate;
     });
-        this.subTotal = this.product.reduce((sum,item)=>{
-        return sum + item.rate * item.qty
-    },0)
+     
+    this.product.forEach((item)=>{
+        return item.total = (item.qty * item.rate) - item.discount
+    })
 
-    // this.subTotal = subTotal - discount
 });
 
-    
+
 
 const Invoice = mongoose.model('invoice', invoiceSchema)
 export { Invoice }
