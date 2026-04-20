@@ -35,3 +35,14 @@ arr.forEach((element)=>{
     console.log(element.age * 2)
 
 })
+
+
+
+
+let obj = {name:'hashir',age:12}
+let obj2 = {}
+
+
+console.log("these are object keys",Object.keys(obj))
+// Object.keys(obj)
+

@@ -49,9 +49,7 @@ const Outflows = () => {
 
   const handleGetOutflows = async (currentFilters = filters, isInitialLoad = false) => {
     try {
-      if (isInitialLoad) {
-        setLoading(true);
-      }
+      setLoading(true);
 
       const params = {};
 
@@ -336,6 +334,7 @@ const Outflows = () => {
         <Table
           columns={columns}
           dataSource={outflows}
+          rowKey="_id"
           size="middle"
           className="mt-8"
           loading={loading}

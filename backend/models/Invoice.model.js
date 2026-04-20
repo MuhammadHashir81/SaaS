@@ -70,7 +70,6 @@ invoiceSchema.pre('save', async function () {
 });
 
 
-
-const Invoice = mongoose.model('invoice', invoiceSchema)
+let Invoice = mongoose.model('invoice', invoiceSchema)
 export { Invoice }
 

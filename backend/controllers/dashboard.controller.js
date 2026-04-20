@@ -1,333 +1,126 @@
-import mongoose from "mongoose";
-import { Invoice } from "../models/Invoice.model.js";
-import { Outflow } from "../models/Outflow.model.js";
+    import { Invoice } from "../models/Invoice.model.js";
+    const getDateRange = (range) => {
+        const now = new Date();
+        let startDate, endDate = new Date();
 
-const PRODUCT_COLORS = [
-    "#2563eb",
-    "#16a34a",
-    "#f97316",
-    "#dc2626",
-    "#7c3aed",
-    "#0891b2",
-    "#ca8a04",
-    "#db2777",
-    "#4f46e5",
-    "#0f766e",
-];
+        switch (range) {
+            case "Today":
+                startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date();
+                break;
 
-const parseIdList = (value) => {
-    if (!value) {
-        return [];
-    }
+            case "Last 7 Days":
+                startDate = new Date();
+                startDate.setDate(now.getDate() - 7);
+                endDate = new Date();
+                break;
 
-    const values = Array.isArray(value)
-        ? value.flatMap((entry) => String(entry).split(","))
-        : String(value).split(",");
+            case "Last 30 Days":
+                startDate = new Date();
+                startDate.setDate(now.getDate() - 30);
+                endDate = new Date();
+                break;
 
-    return values
-        .map((entry) => entry.trim())
-        .filter(Boolean)
-        .filter((entry) => mongoose.Types.ObjectId.isValid(entry))
-        .map((entry) => new mongoose.Types.ObjectId(entry));
-};
+            case "This Month":
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(); // today
+                break;
 
-const getStartOfDay = (value) => {
-    const date = new Date(value);
-    date.setHours(0, 0, 0, 0);
-    return date;
-};
+            case "Last Month":
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0); // last day of last month
+                break;
 
-const getEndOfDay = (value) => {
-    const date = new Date(value);
-    date.setHours(23, 59, 59, 999);
-    return date;
-};
+            case "Last 3 Months":
+                startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                endDate = new Date(); // ✅ today, not end of last month
+                break;
 
-const getGranularity = (startDate, endDate) => {
-    if (!startDate || !endDate) {
-        return "month";
-    }
+            case "Last 6 Months":
+                startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+                endDate = new Date(); // ✅ today
+                break;
 
-    const dayDifference = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    return dayDifference <= 60 ? "day" : "month";
-};
+            case "Last 9 Months":
+                startDate = new Date(now.getFullYear(), now.getMonth() - 9, 1);
+                endDate = new Date(); // ✅ today
+                break;
 
-const getPeriodIdentity = (value, granularity) => {
-    const date = new Date(value);
+            case "Last 12 Months":
+                startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+                endDate = new Date(); // ✅ today
+                break;
 
-    if (granularity === "day") {
-        return {
-            key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
-            label: date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }),
-            sortDate: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
-        };
-    }
+            case "This year":
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(); // today
+                break;
 
-    return {
-        key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
-        label: date.toLocaleDateString("en-GB", { month: "short", year: "numeric" }),
-        sortDate: new Date(date.getFullYear(), date.getMonth(), 1),
+            case "Last year":
+                startDate = new Date(now.getFullYear() - 1, 0, 1);
+                endDate = new Date(now.getFullYear() - 1, 11, 31);
+                break;
+
+            case "All Time":
+                startDate = null;
+                endDate = null;
+                break;
+
+            default:
+                startDate = null;
+                endDate = null;
+        }
+
+        return { startDate, endDate };
     };
-};
 
-const getProductIdentifier = (entry) => {
-    if (entry.productId) {
-        return entry.productId.toString();
-    }
 
-    return `name:${entry.productName}`;
-};
 
-const handleGetDashboardSummary = async (req, res) => {
+    const handleGetDashboardSummary = async (req, res) => {
     try {
-        const { startDate, endDate, products, customers } = req.query;
-
-        const productIds = parseIdList(products);
-        const customerIds = parseIdList(customers);
-
-        const invoiceMatchStage = {};
-
-        if (productIds.length > 0) {
-            invoiceMatchStage["product.productId"] = { $in: productIds };
+        const { range, startDate, endDate, products, customers } = req.body;
+        let filter = {};
+        // 1. Handle date filtering
+        let dateFilter = {};
+        if (range && range !== "All Time") {
+        const dates = getDateRange(range);
+        if (dates.startDate) {
+            dateFilter.$gte = dates.startDate;
+            dateFilter.$lte = dates.endDate;
+        }
+        }
+        // Override if custom range selected
+        if (startDate && endDate) {
+        dateFilter = {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+        };
+        }
+        if (Object.keys(dateFilter).length > 0) {
+        filter.createdAt = dateFilter;
         }
 
-        if (customerIds.length > 0) {
-            invoiceMatchStage.customerId = { $in: customerIds };
+
+        // 2. Product filter
+        if (products && products.length > 0) {
+        filter.product = { $in: products };
         }
-
-        if (startDate || endDate) {
-            invoiceMatchStage.itemDate = {};
-
-            if (startDate) {
-                invoiceMatchStage.itemDate.$gte = getStartOfDay(startDate);
-            }
-
-            if (endDate) {
-                invoiceMatchStage.itemDate.$lte = getEndOfDay(endDate);
-            }
+        // 3. Customer filter
+        if (customers && customers.length > 0) {
+        filter.customer = { $in: customers };
         }
-
-        const salesEntries = await Invoice.aggregate([
-            {
-                $unwind: {
-                    path: "$product",
-                    preserveNullAndEmptyArrays: false,
-                },
-            },
-            {
-                $addFields: {
-                    itemDate: {
-                        $ifNull: ["$product.soldAt", "$createdAt"],
-                    },
-                },
-            },
-            ...(Object.keys(invoiceMatchStage).length > 0 ? [{ $match: invoiceMatchStage }] : []),
-            {
-                $project: {
-                    _id: 0,
-                    customerId: 1,
-                    customerName: "$customer",
-                    productId: "$product.productId",
-                    productName: "$product.product",
-                    qty: "$product.qty",
-                    total: "$product.total",
-                    date: "$itemDate",
-                },
-            },
-            {
-                $sort: {
-                    date: 1,
-                },
-            },
-        ]);
-
-        const outflowQuery = {};
-
-        if (startDate || endDate) {
-            outflowQuery.date = {};
-
-            if (startDate) {
-                outflowQuery.date.$gte = getStartOfDay(startDate);
-            }
-
-            if (endDate) {
-                outflowQuery.date.$lte = getEndOfDay(endDate);
-            }
-        }
-
-        const outflows = await Outflow.find(outflowQuery).sort({ date: 1 }).lean();
-
-        const normalizedSalesEntries = salesEntries.map((entry) => ({
-            ...entry,
-            qty: Number(entry.qty) || 0,
-            total: Number(entry.total) || 0,
-            date: new Date(entry.date),
-        }));
-
-        const normalizedOutflows = outflows.map((outflow) => ({
-            ...outflow,
-            amount: Number(outflow.amount) || 0,
-            date: new Date(outflow.date),
-        }));
-
-        const totalInflow = normalizedSalesEntries.reduce((sum, entry) => sum + entry.total, 0);
-        const totalOutflow = normalizedOutflows.reduce((sum, outflow) => sum + outflow.amount, 0);
-        const netCashFlow = totalInflow - totalOutflow;
-
-        const rangeStart = startDate ? getStartOfDay(startDate) : normalizedSalesEntries[0]?.date || normalizedOutflows[0]?.date || null;
-        const rangeEnd = endDate ? getEndOfDay(endDate) : normalizedSalesEntries.at(-1)?.date || normalizedOutflows.at(-1)?.date || null;
-        const granularity = getGranularity(rangeStart, rangeEnd);
-
-        const cashFlowMap = new Map();
-
-        normalizedSalesEntries.forEach((entry) => {
-            const period = getPeriodIdentity(entry.date, granularity);
-            const existing = cashFlowMap.get(period.key) || {
-                key: period.key,
-                label: period.label,
-                sortDate: period.sortDate,
-                inflow: 0,
-                outflow: 0,
-            };
-
-            existing.inflow += entry.total;
-            cashFlowMap.set(period.key, existing);
-        });
-
-        normalizedOutflows.forEach((entry) => {
-            const period = getPeriodIdentity(entry.date, granularity);
-            const existing = cashFlowMap.get(period.key) || {
-                key: period.key,
-                label: period.label,
-                sortDate: period.sortDate,
-                inflow: 0,
-                outflow: 0,
-            };
-
-            existing.outflow += entry.amount;
-            cashFlowMap.set(period.key, existing);
-        });
-
-        const cashFlowTrend = Array.from(cashFlowMap.values())
-            .sort((a, b) => a.sortDate - b.sortDate)
-            .map(({ key, label, inflow, outflow }) => ({
-                key,
-                label,
-                inflow,
-                outflow,
-            }));
-
-        const topProductsMap = new Map();
-
-        normalizedSalesEntries.forEach((entry) => {
-            const identifier = getProductIdentifier(entry);
-            const existing = topProductsMap.get(identifier) || {
-                productId: entry.productId ? entry.productId.toString() : null,
-                name: entry.productName,
-                sales: 0,
-                qty: 0,
-            };
-
-            existing.sales += entry.total;
-            existing.qty += entry.qty;
-            topProductsMap.set(identifier, existing);
-        });
-
-        const topProducts = Array.from(topProductsMap.values())
-            .sort((a, b) => b.sales - a.sales)
-            .slice(0, 10);
-
-        const topCustomersMap = new Map();
-
-        normalizedSalesEntries.forEach((entry) => {
-            const identifier = entry.customerId?.toString() || entry.customerName;
-            const existing = topCustomersMap.get(identifier) || {
-                customerId: entry.customerId ? entry.customerId.toString() : null,
-                name: entry.customerName,
-                sales: 0,
-                qty: 0,
-            };
-
-            existing.sales += entry.total;
-            existing.qty += entry.qty;
-            topCustomersMap.set(identifier, existing);
-        });
-
-        const topCustomers = Array.from(topCustomersMap.values())
-            .sort((a, b) => b.sales - a.sales)
-            .slice(0, 10);
-
-        const productSeries = topProducts.map((product, index) => ({
-            key: `product_${index}`,
-            name: product.name,
-            color: PRODUCT_COLORS[index % PRODUCT_COLORS.length],
-            productId: product.productId,
-        }));
-
-        const productSeriesLookup = new Map(
-            topProducts.map((product, index) => [
-                product.productId || `name:${product.name}`,
-                `product_${index}`,
-            ])
-        );
-
-        const productTrendMap = new Map();
-
-        normalizedSalesEntries.forEach((entry) => {
-            const identifier = getProductIdentifier(entry);
-            const seriesKey = productSeriesLookup.get(identifier);
-
-            if (!seriesKey) {
-                return;
-            }
-
-            const period = getPeriodIdentity(entry.date, granularity);
-            const existing = productTrendMap.get(period.key) || {
-                key: period.key,
-                label: period.label,
-                sortDate: period.sortDate,
-            };
-
-            existing[seriesKey] = (existing[seriesKey] || 0) + entry.total;
-            productTrendMap.set(period.key, existing);
-        });
-
-        const productTrend = Array.from(productTrendMap.values())
-            .sort((a, b) => a.sortDate - b.sortDate)
-            .map((entry) => {
-                const normalizedEntry = {
-                    key: entry.key,
-                    label: entry.label,
-                };
-
-                productSeries.forEach((series) => {
-                    normalizedEntry[series.key] = entry[series.key] || 0;
-                });
-
-                return normalizedEntry;
-            });
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                summary: {
-                    totalInflow,
-                    totalOutflow,
-                    netCashFlow,
-                },
-                cashFlowTrend,
-                productTrend,
-                productSeries,
-                topProducts,
-                topCustomers,
-                granularity,
-            },
+        // 4. Query database
+        const data = await Invoice.find(filter);
+        res.status(200).json({
+        success: true,
+        data,
         });
     } catch (error) {
-        return res.status(500).json({
-            error: error.message,
-        });
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
     }
-};
+    };
 
-export { handleGetDashboardSummary };
+
+    export {handleGetDashboardSummary}

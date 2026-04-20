@@ -1,5 +1,4 @@
 import axios from "axios";
-import {toast } from "react-hot-toast";
 const apiUrl = import.meta.env.VITE_API_URL
 
 
@@ -33,7 +32,7 @@ api.interceptors.response.use(
     (response) => response.data,
     async (error) => {
         const originalRequest = error.config;
-        console.log(error.response.data.error)
+        console.log(error?.response?.data?.error || error.message)
 
         // If error is 401 and tokenExpired flag is true
         if (error.response?.status === 401 && 
@@ -63,7 +62,7 @@ api.interceptors.response.use(
                 isRefreshing = false;
 
                 // Retry the original request
-                return AudioProcessingEvent(originalRequest);
+                return api(originalRequest);
 
             } catch (refreshError) {
                 processQueue(refreshError);
