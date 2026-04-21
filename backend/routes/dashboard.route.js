@@ -4,6 +4,6 @@ import { handleGetDashboardSummary } from "../controllers/dashboard.controller.j
 
 const dashboardRouter = Router();
 
-dashboardRouter.get("/summary", verifyAdmin, handleGetDashboardSummary);
+dashboardRouter.post("/summary", verifyAdmin, handleGetDashboardSummary);
 
 export { dashboardRouter };

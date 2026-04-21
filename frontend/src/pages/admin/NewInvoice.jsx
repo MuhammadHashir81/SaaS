@@ -68,7 +68,7 @@ const NewInvoice = () => {
   // handle searched prodcuts 
   const handleSearchedProducts = async () => {
     try {
-      const response = await api.get(`/api/product/get-all${productSearch}`)
+      const response = await api.get(`/api/product/search?q=${productSearch}`)
       console.log('products are ', response.data)
       setProducts(response.data)
       console.log(response)

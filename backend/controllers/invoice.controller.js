@@ -265,7 +265,6 @@ const handleSearchInvoices = async (req, res) => {
         }
 
         pipeline.push(
-            { $sort: { createdAt: -1 } },
             {
                 $project: {
                     _id: 1,
@@ -280,9 +279,10 @@ const handleSearchInvoices = async (req, res) => {
                     rate: '$product.rate',
                     discount: '$product.discount',
                     location: '$customerInfo.location',
-                    date: '$createdAt',
+                    date: '$updatedAt',
                 },
-            }
+            },
+            { $sort: { createdAt: -1 } },
         );
 
         const invoices = await Invoice.aggregate(pipeline);

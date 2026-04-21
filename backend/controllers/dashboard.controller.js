@@ -77,9 +77,10 @@
 
 
 
-    const handleGetDashboardSummary = async (req, res) => {
+const handleGetDashboardSummary = async (req, res) => {
     try {
         const { range, startDate, endDate, products, customers } = req.body;
+        console.log(products,customers)
         let filter = {};
         // 1. Handle date filtering
         let dateFilter = {};
@@ -120,7 +121,10 @@
         console.error(error);
         res.status(500).json({ message: "Server Error" });
     }
-    };
+};
+
+
+    // handle get top products 
 
 
     export {handleGetDashboardSummary}
