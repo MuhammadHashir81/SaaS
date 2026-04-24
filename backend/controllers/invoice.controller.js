@@ -34,23 +34,6 @@ const handleAddInvoices = async (req, res) => {
 
     try {
 
-
-        // check if the customer already exists or not 
-        const existingInvoice = await Invoice.findOne({ customerId })
-        console.log(existingInvoice)
-
-        if (existingInvoice) {
-            existingInvoice.product.push(...product)
-
-
-            await existingInvoice.save()
-            return res.status(200).json({
-                success: true,
-                message: 'invoice created',
-                data: existingInvoice
-            })
-        }
-
         const invoice = await Invoice.create({
             customerId,
             customer,
@@ -167,11 +150,9 @@ const handleGetAllInvoices = async (req, res) => {
                     location: '$customerInfo.location',
                     date: '$createdAt',
                 }
-            }
+            },
 
-
-
-
+          {$sort: { createdAt: -1 }}
 
         ]);
 
@@ -302,4 +283,87 @@ const handleSearchInvoices = async (req, res) => {
     }
 };
 
-export { handleAddInvoices, handleGetAllInvoices, handleUpdateInvoice,handleSearchInvoices }
+// get single invoice by id
+const handleGetInvoiceById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const invoice = await Invoice.findById(id)
+            .populate('customerId', 'name email phone location');
+        
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice not found"
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            data: invoice
+        });
+    } catch (error) {
+        console.error('Error fetching invoice:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// download invoice as PDF
+const handleDownloadInvoicePDF = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const invoice = await Invoice.findById(id)
+            .populate('customerId', 'name email phone location address');
+        
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice not found"
+            });
+        }
+        
+        // For now, return a simple PDF generation response
+        // In a real implementation, you would use a PDF library like puppeteer or jsPDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${id}.pdf`);
+        
+        // Simple PDF content (you should replace this with proper PDF generation)
+        const pdfContent = `
+Invoice Details
+===============
+Invoice ID: ${invoice._id}
+Date: ${new Date(invoice.createdAt).toLocaleDateString()}
+Customer: ${invoice.customer}
+Customer ID: ${invoice.customerId}
+
+Products:
+--------
+${invoice.product.map((item, index) => `
+${index + 1}. ${item.product}
+   Quantity: ${item.qty}
+   Rate: $${item.rate}
+   Discount: $${item.discount || 0}
+   Total: $${(item.total || (item.qty * item.rate) - (item.discount || 0)).toFixed(2)}
+`).join('')}
+
+Grand Total: $${invoice.product.reduce((sum, item) => 
+    sum + (item.total || (item.qty * item.rate) - (item.discount || 0)), 0
+).toFixed(2)}
+        `;
+        
+        res.send(pdfContent);
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+export { handleAddInvoices, handleGetAllInvoices, handleUpdateInvoice, handleSearchInvoices, handleGetInvoiceById, handleDownloadInvoicePDF }

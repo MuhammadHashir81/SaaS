@@ -32,17 +32,25 @@ const  arr = [
 
 
 arr.forEach((element)=>{
-    console.log(element.age * 2)
+    // console.log(element.age * 2)
 
 })
 
 
 
 
-let obj = {name:'hashir',age:12}
-let obj2 = {}
+let obj = {
+    name:'hashir',
+    young:12,
+    elder:13
+}
 
 
-console.log("these are object keys",Object.keys(obj))
+const aObj = Object.values(obj).map((item)=>({
+    ...item,
+    age: item+1
+
+}))
 // Object.keys(obj)
+console.log(aObj)
 
