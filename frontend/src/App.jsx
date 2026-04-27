@@ -11,6 +11,7 @@ import Outflows from './pages/admin/Outflows';
 import EditCustomer from './pages/admin/EditCustomer';
 import EditProduct from './pages/admin/EditProduct';
 import EditInvoice from './pages/admin/EditInvoice';
+import GenerateBillPdf from './pages/admin/GenerateBillPdf';
 
 const App = () => {
     return (
@@ -28,6 +29,7 @@ const App = () => {
         <Route path='edit/:id' element={<EditCustomer/> }/>
         <Route path='edit-product/:id' element={<EditProduct/> }/>
         <Route path='edit-invoice/:id' element={<EditInvoice/> }/>
+        <Route path='bill/:id' element={<GenerateBillPdf/> }/>
         </Route>
 
         <Route path='/admin-login' element={<AdminLogin/>}/>

@@ -1,5 +1,6 @@
 import { Invoice } from "../models/Invoice.model.js"
 import { Customer } from "../models/customer.model.js"
+import puppeteer from 'puppeteer';
 
 
 // handle sold products 
@@ -53,9 +54,6 @@ const handleAddInvoices = async (req, res) => {
 
 
 // update invoice
-
-
-
 const handleUpdateInvoice = async (req, res) => {
     try {
         const { id } = req.params;
@@ -108,69 +106,87 @@ const handleUpdateInvoice = async (req, res) => {
 };
 
 
-const handleGetAllInvoices = async (req, res) => {
-    try {
-        const invoices = await Invoice.aggregate([
-            // Join customer info
-            {
-                $lookup: {
-                    from: 'customers',
-                    localField: 'customerId',
-                    foreignField: '_id',
-                    as: 'customerInfo'
-                }
-            },
-            // Flatten customerInfo array (it's always one customer)
-            {
-                $unwind: {
-                    path: '$customerInfo',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $unwind: {
-                    path: '$product',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    customerId: 1,
-                    // Pull customer fields out of the nested object
-                    customer: '$customerInfo.name',
-                    customerEmail: '$customerInfo.email',
-                    customerPhone: '$customerInfo.phone',
-                    product: '$product.product',
-                    total: '$product.total',
-                    subTotal: '$product.subTotal',
-                    qty: '$product.qty',
-                    rate: '$product.rate',
-                    discount: '$product.discount',
-                    location: '$customerInfo.location',
-                    date: '$createdAt',
-                }
-            },
 
-          {$sort: { createdAt: -1 }}
+    // get all invoices
+    const handleGetAllInvoices = async (req, res) => {
+        try {
+            const page = Number(req.query.page) || 1
+            console.log(page)
+            const limit = Number(req.query.limit) || 10
+            console.log(limit)
+            const skip = (page - 1) * limit
+            console.log(skip)
 
-        ]);
+            const totalInvoices = await Invoice.countDocuments()
 
-        res.status(200).json({
-            data: invoices,
-            message: 'All invoices fetched successfully'
-        });
+            const totalPages = Math.ceil(totalInvoices / limit)
 
-    } catch (error) {
-        res.status(500).json({
-            error: error.message
-        });
-    }
-};
+            const invoices = await Invoice.aggregate([
+                // Join customer info
+                {
+                    $lookup: {
+                        from: 'customers',
+                        localField: 'customerId',
+                        foreignField: '_id',
+                        as: 'customerInfo'
+                    }
+                },
+                // Flatten customerInfo array (it's always one customer)
+                {
+                    $unwind: {
+                        path: '$customerInfo',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$product',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        customerId: 1,
+                        customer: '$customerInfo.name',
+                        customerEmail: '$customerInfo.email',
+                        customerPhone: '$customerInfo.phone',
+                        product: '$product.product',
+                        total: '$product.total',
+                        subTotal: '$product.subTotal',
+                        qty: '$product.qty',
+                        rate: '$product.rate',
+                        packing: '$product.packing',
+                        discount: '$product.discount',
+                        location: '$customerInfo.location',
+                        ntn: '$customerInfo.ntn',
+                        strn: '$customerInfo.strn',
+                        batchNo: '$product.batchNo',
+                        date: '$createdAt',
+                    }
+                },
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit }
+
+            ]);
+
+            res.status(200).json({
+                data: invoices,
+                totalPages:totalPages,
+                totalInvoices:totalInvoices,
+                message: 'All invoices fetched successfully'
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                error: error.message
+            });
+        }
+    };
 
 
 // filter invoices by customer, start date, end date, min and max total
-
 const handleSearchInvoices = async (req, res) => {
     try {
         const { customer, startDate, endDate, minTotal, maxTotal } = req.query;
@@ -267,7 +283,7 @@ const handleSearchInvoices = async (req, res) => {
         );
 
         const invoices = await Invoice.aggregate(pipeline);
-        console.log("these are all filtered invoices",invoices)
+        console.log("these are all filtered invoices", invoices)
 
         res.status(200).json({
             success: true,
@@ -283,87 +299,195 @@ const handleSearchInvoices = async (req, res) => {
     }
 };
 
-// get single invoice by id
-const handleGetInvoiceById = async (req, res) => {
+
+// handle download pdf
+
+const handlePdfDownload = async (req, res) => {
     try {
-        const { id } = req.params;
-        
-        const invoice = await Invoice.findById(id)
-            .populate('customerId', 'name email phone location');
-        
-        if (!invoice) {
-            return res.status(404).json({
-                success: false,
-                message: "Invoice not found"
-            });
-        }
-        
-        res.status(200).json({
-            success: true,
-            data: invoice
-        });
+        const {
+            customer,
+            date,
+            address,
+            ntn,
+            strn,
+            product,
+            packing,
+            qty,
+            batchNo,
+            rate,
+            total,
+            id
+        } = req.body
+
+        const browser = await puppeteer.launch({
+            headless: "new"
+        })
+
+        const page = await browser.newPage()
+
+        // HTML Template
+        const html = `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+          }
+          .title {
+            font-size: 24px;
+            font-weight: bold;
+          }
+          .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+          }
+          .label {
+            color: gray;
+            font-size: 12px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background: #f5f5f5;
+          }
+          .totals {
+            width: 300px;
+            margin-left: auto;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+          }
+          .flex {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+          }
+        </style>
+      </head>
+
+      <body>
+
+        <div class="header">
+          <div class="title">Invoice #${id}</div>
+          <div>${date}</div>
+        </div>
+
+        <div class="card grid">
+          <div>
+            <div class="label">Customer Name</div>
+            <div>${customer}</div>
+          </div>
+
+          <div>
+            <div class="label">Customer No</div>
+            <div>${id}</div>
+          </div>
+
+          <div>
+            <div class="label">Address</div>
+            <div>${address}</div>
+          </div>
+
+          <div>
+            <div class="label">NTN</div>
+            <div>${ntn || "-"}</div>
+          </div>
+
+          <div>
+            <div class="label">STRN</div>
+            <div>${strn || "-"}</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th>Packing</th>
+              <th>Batch</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>${product}</td>
+              <td>${packing}</td>
+              <td>${batchNo}</td>
+              <td>${qty}</td>
+              <td>${rate}</td>
+              <td>${qty * rate}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div class="flex">
+            <span>Sub Total</span>
+            <span>${total}</span>
+          </div>
+
+          <div class="flex">
+            <span>Discount</span>
+            <span>0.00</span>
+          </div>
+
+          <div class="flex" style="font-weight:bold;">
+            <span>Total</span>
+            <span>${total}</span>
+          </div>
+        </div>
+
+      </body>
+    </html>
+    `
+
+        await page.setContent(html, { waitUntil: "domcontentloaded" })
+
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            printBackground: true
+        })
+
+        await browser.close()
+
+        // Send PDF as response
+        res.set({
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `attachment; filename=invoice-${id}.pdf`,
+            "Content-Length": pdfBuffer.length
+        })
+
+        res.send(pdfBuffer)
+
     } catch (error) {
-        console.error('Error fetching invoice:', error);
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        console.error(error)
+        res.status(500).json({ error: error.message })
     }
-};
+}
 
-// download invoice as PDF
-const handleDownloadInvoicePDF = async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const invoice = await Invoice.findById(id)
-            .populate('customerId', 'name email phone location address');
-        
-        if (!invoice) {
-            return res.status(404).json({
-                success: false,
-                message: "Invoice not found"
-            });
-        }
-        
-        // For now, return a simple PDF generation response
-        // In a real implementation, you would use a PDF library like puppeteer or jsPDF
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=invoice-${id}.pdf`);
-        
-        // Simple PDF content (you should replace this with proper PDF generation)
-        const pdfContent = `
-Invoice Details
-===============
-Invoice ID: ${invoice._id}
-Date: ${new Date(invoice.createdAt).toLocaleDateString()}
-Customer: ${invoice.customer}
-Customer ID: ${invoice.customerId}
-
-Products:
---------
-${invoice.product.map((item, index) => `
-${index + 1}. ${item.product}
-   Quantity: ${item.qty}
-   Rate: $${item.rate}
-   Discount: $${item.discount || 0}
-   Total: $${(item.total || (item.qty * item.rate) - (item.discount || 0)).toFixed(2)}
-`).join('')}
-
-Grand Total: $${invoice.product.reduce((sum, item) => 
-    sum + (item.total || (item.qty * item.rate) - (item.discount || 0)), 0
-).toFixed(2)}
-        `;
-        
-        res.send(pdfContent);
-        
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-export { handleAddInvoices, handleGetAllInvoices, handleUpdateInvoice, handleSearchInvoices, handleGetInvoiceById, handleDownloadInvoicePDF }
+export { handleAddInvoices, handleGetAllInvoices, handleUpdateInvoice, handleSearchInvoices, handlePdfDownload }

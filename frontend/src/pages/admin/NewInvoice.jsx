@@ -13,9 +13,12 @@ const NewInvoice = () => {
     {
       productId: '',
       product: '',
+      packing: '',
+      batchNo:'',
       qty: 0,
       rate: 0,
       discount: 0
+
     }
   ]);
   const [discount, setDiscount] = useState(0)
@@ -35,6 +38,8 @@ const NewInvoice = () => {
       {
         productId: "",
         product: '',
+        packing:'',
+        batchNo:'',
         qty: 0,
         rate: 0,
         discount: 0
@@ -102,7 +107,7 @@ const NewInvoice = () => {
 
     setInvoiceItems((prev) => (
       prev.map((item) => (
-        item === record ? { ...item, productId: value, product: selectedProduct?.name } : item
+        item === record ? { ...item, productId: value, product: selectedProduct?.name , packing:selectedProduct?.packing, batchNo:selectedProduct.batchNo} : item
       ))
 
     ))
@@ -147,6 +152,8 @@ const NewInvoice = () => {
     ))
   }
 
+  
+
   // sold products api call  
 
   const handleInvoice = async () => {
@@ -161,6 +168,8 @@ const NewInvoice = () => {
         {
           productId: '',
           product: '',
+          packing:'',
+          batchNo:'',
           qty: 0,
           rate: 0,
           discount:0

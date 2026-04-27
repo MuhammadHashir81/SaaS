@@ -252,7 +252,7 @@ const Products = () => {
                 placeholder="enter"
               />
             </div>
-
+    
             <div className="flex flex-col gap-2">
               <label htmlFor="batchNo">Batch No</label>
               <input

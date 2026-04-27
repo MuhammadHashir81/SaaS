@@ -11,6 +11,10 @@ import dayjs from 'dayjs';
 const Invoices = () => {
   const navigate = useNavigate()
   const [invoices, setInvoices] = useState([])
+  const [totalPages,setTotalPages] = useState('')
+  const [page,setPage] = useState(1)
+  const [totalInvoices,setTotalInvoices] = useState('')
+
 
   const [filters, setFilters] = useState({
     customer: "",
@@ -28,6 +32,7 @@ const Invoices = () => {
     console.log(date, dateString);
   };
 
+
   const columns = [
     {
       title: 'Customer',
@@ -41,7 +46,7 @@ const Invoices = () => {
       title: 'Date',
       dataIndex: 'date',
       render: (date) => {
-        return new Date(date).toLocaleString('en-GB', {
+        return new Date(date).toLocaleString(undefined, {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
@@ -69,37 +74,66 @@ const Invoices = () => {
         <div className='flex gap-2'>
 
           <span onClick={() => handleEdit(invoice)} className='font-primary text-green-600 cursor-pointer font-medium' >Edit</span>
-          <span className='text-blue-600 cursor-pointer font-primary font-medium'>View</span>
+          <span  onClick={()=>handleView(invoice)} className='text-blue-600 cursor-pointer font-primary font-medium'>View</span>
         </div>
 
       )
     },
 
   ];
+  
+  // handle next page 
+
+  const handleNextPage = () => {
+    console.log('page')
+
+    setPage(prev => prev + 1)
+  }
+
+  console.log(page)
+  // handle previous page
+  const handlePreviousPage = () => {
+    setPage(prev => prev - 1)
+
+  }
 
 
-  const handleGetAllInvoices = async () => {
+
+  const handleGetAllInvoices = async (page=1,limit=10) => {
     try {
-      const response = await api.get(`/api/product/invoice/get-all`)
+      const response = await api.get(`/api/product/invoice/get-all?page=${page}&limit=${limit}`)
       setInvoices(response.data || [])
+      setTotalPages(response.totalPages)
+      setTotalInvoices(response.totalInvoices)
       console.log("these are all invoices", response.data)
     } catch (error) {
       console.log(error)
-
     }
 
   }
 
 
   useEffect(() => {
-    handleGetAllInvoices()
-  }, [])
+    handleGetAllInvoices(page)
+  }, [page])
 
+
+  
 
   const handleEdit = (invoice) => {
     navigate(`/admin/edit-invoice/${invoice._id}`, {
       state: invoice
     })
+    console.log(invoice)
+  }
+
+  // view invoice to generate pdf
+
+  const handleView = (invoice) =>{
+    navigate(`/admin/bill/${invoice._id}`,{
+      state:invoice
+    })
+
     console.log(invoice)
   }
 
@@ -136,6 +170,7 @@ const handleDateChange = (field) => (date, dateString) => {
 };
 
 const handleResetFilters = () => {
+  console.log("reseting all the filters....")
   setFilters({
     customer: "",
     startDate: "",
@@ -215,15 +250,32 @@ const handleResetFilters = () => {
               onChange={handleChange("maxTotal")}
               className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
             <button onClick={()=>handleSearchInvoices(filters)} className='cursor-pointer font-primary font-medium bg-blue-500 text-white rounded-md py-2'>search</button>
-            <button onClick={handleResetFilters} className='cursor-pointer font-primary font-medium bg-gray-200 rounded-md'>reset</button>
+            <button onClick={handleResetFilters} className='cursor-pointer font-primary   font-medium bg-gray-200 rounded-md'>reset</button>
           </div>
 
 
           {/* table  */}
 
+          <div className='font-primary rounded-lg bg-white shadow-sm text-sm font-medium px-4 py-5 my-10 '>
+
+
           <Table columns={columns} dataSource={invoices} size="middle" pagination={false} />
 
+          
+          <div className='mt-5 flex justify-between gap-3 text-gray-600'>
+            <div>
+              <p> Total Invoices {totalInvoices}</p>
+            </div>
+            <div className={`flex gap-2 items-center flex`}>
+              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>previous</button>
+              <p> page {page} of {totalPages} </p>
+              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>next</button>
+            </div>
 
+          </div>
+
+
+          </div>
         </div>
 
       </div>

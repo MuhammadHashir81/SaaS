@@ -12,6 +12,12 @@ const invoiceItemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    packing: {
+        type: String,
+    },
+    batchNo: {
+        type: String
+    },
 
     rate: {
         type: Number,
@@ -24,21 +30,21 @@ const invoiceItemSchema = new mongoose.Schema({
 
     },
 
-    discount:{
-        type:Number,
+    discount: {
+        type: Number,
     },
 
     soldAt: {
         type: Date,
         default: Date.now
     },
-    
+
     subTotal: {
         type: Number,
     },
 
-    total:{
-        type:Number
+    total: {
+        type: Number
     }
 })
 
@@ -60,10 +66,10 @@ const invoiceSchema = new mongoose.Schema({
 
 invoiceSchema.pre('save', async function () {
     this.product.forEach((item) => {
-       return item.subTotal = item.qty * item.rate;
+        return item.subTotal = item.qty * item.rate;
     });
-     
-    this.product.forEach((item)=>{
+
+    this.product.forEach((item) => {
         return item.total = (item.qty * item.rate) - item.discount
     })
 
