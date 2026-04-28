@@ -321,7 +321,7 @@ const Customers = () => {
                         </div>
 
                     </div>
-                    <button className=' bg-green-500 px-4 py-2.5 text-white font-primary rounded-md cursor-pointer'>Add Customer</button>
+                    <button className=' bg-green-500 px-4 py-2 text-white font-primary rounded-md cursor-pointer'>Add Customer</button>
                 </form>
 
             
@@ -334,9 +334,9 @@ const Customers = () => {
                         <p> Total Customers {totalCustomers}</p>
                     </div>
                     <div className={`flex gap-2 items-center ${search.trim() !== '' ? 'hidden' : 'flex'}`}>
-                        <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>previous</button>
+                        <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>previous</button>
                         <p> page {page} of {totalPages} </p>
-                        <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>next</button>
+                        <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>next</button>
                     </div>
 
                 </div>

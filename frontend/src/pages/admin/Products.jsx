@@ -280,7 +280,7 @@ const Products = () => {
             </div>
           </div>
 
-          <button className=' bg-green-600 px-4 py-2.5 text-white font-primary rounded-md hover:bg-green-700 cursor-pointer '>Add Product</button>
+          <button className=' bg-green-600 px-4 py-2 text-white font-primary rounded-md hover:bg-green-700 cursor-pointer '>Add Product</button>
         </form>
         <div className='my-8'>
 
@@ -292,9 +292,9 @@ const Products = () => {
               <p> Total Products {totalProducts}</p>
             </div>
             <div className={`flex gap-2 items-center ${search.trim() !== '' ? 'hidden' : 'flex'}`}>
-              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>previous</button>
+              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>previous</button>
               <p> page {page} of {totalPages} </p>
-              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>next</button>
+              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>next</button>
             </div>
 
           </div>

@@ -60,6 +60,12 @@ const handleAddOutflow = async (req, res) => {
 const handleGetAllOutflows = async (req, res) => {
     try {
         const { q = "", startDate, endDate, category = "" } = req.query;
+        const page = Number(req.query.page) || 1
+        const limit = Number(req.query.limit) || 10
+        const skip  = (page - 1) * limit
+
+        const totalOutflows = await Outflow.countDocuments()
+        const totalPages = await Math.ceil(totalOutflows / limit)
 
         const query = {};
         const search = q.trim();
@@ -81,7 +87,10 @@ const handleGetAllOutflows = async (req, res) => {
             query.date = dateQuery;
         }
 
-        const outflows = await Outflow.find(query).sort({ date: -1, createdAt: -1 });
+        const outflows = await Outflow.find(query)
+        .sort({ date: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         const totalAmount = outflows.reduce((sum, outflow) => sum + (outflow.amount || 0), 0);
 
         return res.status(200).json({
@@ -89,8 +98,11 @@ const handleGetAllOutflows = async (req, res) => {
             count: outflows.length,
             totalAmount,
             data: outflows,
+            totalPages:totalPages,
+            totalOutflows:totalOutflows
         });
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             error: error.message,
         });
@@ -113,8 +125,10 @@ const handleDeleteOutflow = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Outflow deleted successfully",
+
         });
     } catch (error) {
+        
         return res.status(500).json({
             error: error.message,
         });

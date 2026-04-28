@@ -269,13 +269,13 @@ const Dashboard = () => {
             <div className='mt-7 flex gap-4'>
               <button
                 onClick={handleApplyFilters}
-                className='bg-blue-500 px-6 py-3 text-white font-primary font-medium rounded-md cursor-pointer hover:bg-blue-600'
+                className='bg-blue-500 px-4 py-2 text-white font-primary font-medium rounded-md cursor-pointer hover:bg-blue-600'
               >
                 Apply Filters
               </button>
               <button
                 onClick={handleClearFilters}
-                className='bg-gray-200 hover:bg-gray-300 cursor-pointer text-black px-6 py-3 font-primary font-medium rounded-md'
+                className='bg-gray-200 hover:bg-gray-300 cursor-pointer text-black px-4 py-2 font-primary font-medium rounded-md'
               >
                 Clear Filters
               </button>
@@ -431,7 +431,7 @@ const Dashboard = () => {
             <div className='bg-white my-5 rounded-md px-4 py-7 w-[50%] min-h-[300px]'>
               <div className='flex justify-between items-center mb-4'>
                 <h3 className='font-primary text-lg font-semibold'>Top Products</h3>
-                <NavLink to='/admin/products' className='bg-blue-500 font-primary px-3 py-2 rounded-md text-white font-medium'>
+                <NavLink to='/admin/products' className='bg-blue-500 font-primary px-4 py-2 rounded-md text-white font-medium'>
                   Manage Products
                 </NavLink>
               </div>
@@ -451,7 +451,7 @@ const Dashboard = () => {
             <div className='bg-white my-5 rounded-md px-4 py-7 w-[50%] min-h-[300px]'>
               <div className='flex justify-between items-center mb-4'>
                 <h3 className='font-primary text-lg font-semibold'>Top Customers</h3>
-                <NavLink to='/admin/customers' className='bg-blue-500 font-primary px-3 py-2 rounded-md text-white font-medium'>
+                <NavLink to='/admin/customers' className='bg-blue-500 font-primary px-4 py-2 rounded-md text-white font-medium'>
                   Manage Customers
                 </NavLink>
               </div>

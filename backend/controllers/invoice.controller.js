@@ -107,83 +107,83 @@ const handleUpdateInvoice = async (req, res) => {
 
 
 
-    // get all invoices
-    const handleGetAllInvoices = async (req, res) => {
-        try {
-            const page = Number(req.query.page) || 1
-            console.log(page)
-            const limit = Number(req.query.limit) || 10
-            console.log(limit)
-            const skip = (page - 1) * limit
-            console.log(skip)
+// get all invoices
+const handleGetAllInvoices = async (req, res) => {
+    try {
+        const page = Number(req.query.page) || 1
+        console.log(page)
+        const limit = Number(req.query.limit) || 10
+        console.log(limit)
+        const skip = (page - 1) * limit
+        console.log(skip)
 
-            const totalInvoices = await Invoice.countDocuments()
+        const totalInvoices = await Invoice.countDocuments()
 
-            const totalPages = Math.ceil(totalInvoices / limit)
+        const totalPages = Math.ceil(totalInvoices / limit)
 
-            const invoices = await Invoice.aggregate([
-                // Join customer info
-                {
-                    $lookup: {
-                        from: 'customers',
-                        localField: 'customerId',
-                        foreignField: '_id',
-                        as: 'customerInfo'
-                    }
-                },
-                // Flatten customerInfo array (it's always one customer)
-                {
-                    $unwind: {
-                        path: '$customerInfo',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$product',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        customerId: 1,
-                        customer: '$customerInfo.name',
-                        customerEmail: '$customerInfo.email',
-                        customerPhone: '$customerInfo.phone',
-                        product: '$product.product',
-                        total: '$product.total',
-                        subTotal: '$product.subTotal',
-                        qty: '$product.qty',
-                        rate: '$product.rate',
-                        packing: '$product.packing',
-                        discount: '$product.discount',
-                        location: '$customerInfo.location',
-                        ntn: '$customerInfo.ntn',
-                        strn: '$customerInfo.strn',
-                        batchNo: '$product.batchNo',
-                        date: '$createdAt',
-                    }
-                },
-                { $sort: { createdAt: -1 } },
-                { $skip: skip },
-                { $limit: limit }
+        const invoices = await Invoice.aggregate([
+            // Join customer info
+            {
+                $lookup: {
+                    from: 'customers',
+                    localField: 'customerId',
+                    foreignField: '_id',
+                    as: 'customerInfo'
+                }
+            },
+            // Flatten customerInfo array (it's always one customer)
+            {
+                $unwind: {
+                    path: '$customerInfo',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: '$product',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    customerId: 1,
+                    customer: '$customerInfo.name',
+                    customerEmail: '$customerInfo.email',
+                    customerPhone: '$customerInfo.phone',
+                    product: '$product.product',
+                    total: '$product.total',
+                    subTotal: '$product.subTotal',
+                    qty: '$product.qty',
+                    rate: '$product.rate',
+                    packing: '$product.packing',
+                    discount: '$product.discount',
+                    location: '$customerInfo.location',
+                    ntn: '$customerInfo.ntn',
+                    strn: '$customerInfo.strn',
+                    batchNo: '$product.batchNo',
+                    date: '$createdAt',
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit }
 
-            ]);
+        ]);
 
-            res.status(200).json({
-                data: invoices,
-                totalPages:totalPages,
-                totalInvoices:totalInvoices,
-                message: 'All invoices fetched successfully'
-            });
+        res.status(200).json({
+            data: invoices,
+            totalPages: totalPages,
+            totalInvoices: totalInvoices,
+            message: 'All invoices fetched successfully'
+        });
 
-        } catch (error) {
-            res.status(500).json({
-                error: error.message
-            });
-        }
-    };
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
 
 
 // filter invoices by customer, start date, end date, min and max total
@@ -316,157 +316,273 @@ const handlePdfDownload = async (req, res) => {
             batchNo,
             rate,
             total,
+            discount,
+            subTotal,
             id
         } = req.body
 
-        const browser = await puppeteer.launch({
-            headless: "new"
-        })
-
+        const browser = await puppeteer.launch()
         const page = await browser.newPage()
 
-        // HTML Template
+        const formattedDate = date
+            ? new Date(date).toLocaleDateString('en-US', {
+                day: '2-digit', month: 'long', year: 'numeric'
+            })
+            : '-'
+
         const html = `
     <html>
       <head>
         <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: Arial, sans-serif;
-            padding: 30px;
+            font-size: 13px;
+            padding: 30px 40px;
+            color: #000;
           }
+
+          /* ── HEADER ── */
           .header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 12px;
           }
-          .title {
-            font-size: 24px;
+          .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+          }
+          .logo-box {
+            border: 2px solid #000;
+            padding: 6px 12px;
+            font-size: 20px;
+            font-style: italic;
+            font-weight: bold;
+            letter-spacing: 1px;
+          }
+          .ntn-label {
+            font-size: 12px;
+            margin-top: 4px;
             font-weight: bold;
           }
-          .card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
+          .company-info {
+            text-align: center;
+            flex: 1;
           }
-          .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+          .company-name {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 2px;
           }
-          .label {
-            color: gray;
+          .company-subtitle {
             font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
           }
+          .company-address {
+            font-size: 11px;
+            line-height: 1.5;
+          }
+
+          /* ── CUSTOMER INFO ── */
+          .customer-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 14px 0;
+            font-size: 13px;
+          }
+          .customer-section .left p,
+          .customer-section .right p {
+            margin-bottom: 4px;
+          }
+          .customer-section span {
+            font-weight: bold;
+          }
+          .divider {
+            border: none;
+            border-top: 1px solid #000;
+            margin: 10px 0;
+          }
+
+          /* ── TABLE ── */
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
+            font-size: 12px;
           }
           th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #555;
+            padding: 7px 8px;
             text-align: left;
           }
           th {
-            background: #f5f5f5;
+            background: #fff;
+            font-weight: bold;
+            text-align: center;
           }
-          .totals {
-            width: 300px;
-            margin-left: auto;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
+          td {
+            text-align: center;
           }
-          .flex {
+          td.product-name {
+            text-align: left;
+          }
+
+          /* ── BOTTOM SECTION ── */
+          .bottom {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
+            margin-top: 16px;
+            gap: 0;
+          }
+          .warranty {
+            border: 1px solid #555;
+            padding: 10px 12px;
+            font-size: 11px;
+            flex: 1;
+            line-height: 1.6;
+          }
+          .warranty strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+          }
+          .totals-table {
+            border-collapse: collapse;
+            width: 220px;
+            font-size: 13px;
+          }
+          .totals-table td {
+            border: 1px solid #555;
+            padding: 8px 12px;
+            text-align: left;
+          }
+          .totals-table td:last-child {
+            text-align: right;
+            min-width: 80px;
+          }
+          .totals-table tr:last-child td {
+            font-weight: bold;
+          }
+
+          /* ── SIGNATURE ── */
+          .signature {
+            text-align: right;
+            margin-top: 40px;
+            font-size: 13px;
+          }
+          .signature-line {
+            display: inline-block;
+            border-top: 1px solid #000;
+            width: 200px;
+            margin-left: 8px;
           }
         </style>
       </head>
-
       <body>
 
+        <!-- HEADER -->
         <div class="header">
-          <div class="title">Invoice #${id}</div>
-          <div>${date}</div>
-        </div>
-
-        <div class="card grid">
-          <div>
-            <div class="label">Customer Name</div>
-            <div>${customer}</div>
+          <div class="logo-block">
+            <div>
+              <div class="logo-box">Greenburg</div>
+              <div class="ntn-label">NTN# 1018404-0</div>
+            </div>
           </div>
-
-          <div>
-            <div class="label">Customer No</div>
-            <div>${id}</div>
-          </div>
-
-          <div>
-            <div class="label">Address</div>
-            <div>${address}</div>
-          </div>
-
-          <div>
-            <div class="label">NTN</div>
-            <div>${ntn || "-"}</div>
-          </div>
-
-          <div>
-            <div class="label">STRN</div>
-            <div>${strn || "-"}</div>
+          <div class="company-info">
+            <div class="company-name">GREEN BURG</div>
+            <div class="company-subtitle">MARKETING NETWORK</div>
+            <div class="company-address">
+              GREEN BURG MARKETING NETWORK, GROUND FLOOR SHOP NO.03,<br/>
+              PLOT NO.250 RAILWAY SCHEME NO.09 CHAKLALA, Rawalpindi.<br/>
+              Ph: 0322-5058166, Email: salteen_ls@yahoo.com
+            </div>
           </div>
         </div>
 
+        <!-- CUSTOMER INFO -->
+        <div class="customer-section">
+          <div class="left">
+            <p>Customer Name: <span>${customer}</span></p>
+            <p>Address: <span>${address}</span></p>
+            ${ntn ? `<p>NTN: <span>${ntn}</span></p>` : ''}
+            ${strn ? `<p>STRN: <span>${strn}</span></p>` : ''}
+          </div>
+          <div class="right" style="text-align:right;">
+            <p>No. <span>${id}</span></p>
+            <p>Date: <span>${formattedDate}</span></p>
+          </div>
+        </div>
+
+        <hr class="divider"/>
+
+        <!-- PRODUCT TABLE -->
         <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Product</th>
+              <th>S.#</th>
+              <th>Qty.</th>
+              <th>Barcode</th>
+              <th style="text-align:left;">Product</th>
               <th>Packing</th>
-              <th>Batch</th>
-              <th>Qty</th>
+              <th>Batch No.</th>
               <th>Rate</th>
               <th>Amount</th>
             </tr>
           </thead>
-
           <tbody>
             <tr>
               <td>1</td>
-              <td>${product}</td>
-              <td>${packing}</td>
-              <td>${batchNo}</td>
               <td>${qty}</td>
+              <td>${batchNo || ''}</td>
+              <td class="product-name">${product}</td>
+              <td>${packing || ''}</td>
+              <td>${batchNo || ''}</td>
               <td>${rate}</td>
-              <td>${qty * rate}</td>
+              <td>${subTotal}</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="totals">
-          <div class="flex">
-            <span>Sub Total</span>
-            <span>${total}</span>
+        <!-- BOTTOM: WARRANTY + TOTALS -->
+        <div class="bottom">
+          <div class="warranty">
+            <strong>WARRANTY:</strong>
+            We Greenburg certify that the products described in this invoice are general consumer
+            products and are not the drugs such as herbal medicines nutraceuticals and allopathic
+            pharmaceuticals products therefore such product are not required by law to be registered
+            under drug act category.
           </div>
+          <table class="totals-table">
+            <tr>
+              <td>Total</td>
+              <td>${subTotal}</td>
+            </tr>
+            <tr>
+              <td>Ds.</td>
+              <td>${discount ?? ''}</td>
+            </tr>
+            <tr>
+              <td>G. Total</td>
+              <td>${total}</td>
+            </tr>
+          </table>
+        </div>
 
-          <div class="flex">
-            <span>Discount</span>
-            <span>0.00</span>
-          </div>
-
-          <div class="flex" style="font-weight:bold;">
-            <span>Total</span>
-            <span>${total}</span>
-          </div>
+        <!-- SIGNATURE -->
+        <div class="signature">
+          Signature: <span class="signature-line"></span>
         </div>
 
       </body>
     </html>
     `
 
-        await page.setContent(html, { waitUntil: "domcontentloaded" })
+        await page.setContent(html, { waitUntil: 'networkidle0' })
 
         const pdfBuffer = await page.pdf({
             format: "A4",
@@ -475,14 +591,11 @@ const handlePdfDownload = async (req, res) => {
 
         await browser.close()
 
-        // Send PDF as response
-        res.set({
-            "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename=invoice-${id}.pdf`,
-            "Content-Length": pdfBuffer.length
-        })
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+        res.setHeader("Content-Length", pdfBuffer.length);
 
-        res.send(pdfBuffer)
+        return res.end(pdfBuffer);
 
     } catch (error) {
         console.error(error)

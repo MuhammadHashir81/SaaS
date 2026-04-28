@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
-import { api } from '../../../api/api'
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const GenerateBillPdf = () => {
   const navigate = useNavigate()
@@ -24,10 +24,13 @@ const GenerateBillPdf = () => {
   const [discount, setDiscount] = useState(state?.discount)
   const [subTotal, setSubtotal] = useState(state?.subTotal)
 
+
+  
+const apiUrl = import.meta.env.VITE_API_URL
   const handleGeneratePDF = async () => {
     try {
-      const res = await api.post(
-        '/api/product/invoice/generate-bill',
+      const res = await axios.post(
+        `${apiUrl}/api/product/invoice/generate-bill`,
         {
           id,
           customer,
@@ -41,24 +44,25 @@ const GenerateBillPdf = () => {
           batchNo,
           rate,
           total,
-          discount,
-          subTotal
+          discount,   // ✅ was missing
+          subTotal    // ✅ was missing
         },
+        
         {
-          responseType: 'blob' // 🔥 VERY IMPORTANT
-        }
+          withCredentials:true,
+          responseType: 'arraybuffer'   // 🔥 CRITICAL FIX
+        },
       )
 
-      const url = window.URL.createObjectURL(new Blob([res.data]))
-
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `invoice-${id}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-
-      window.URL.revokeObjectURL(url)
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "invoice.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error(error)
@@ -72,50 +76,51 @@ const GenerateBillPdf = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Invoice</h2>
-
         <div className="flex gap-3 font-light">
-          {/* <button className="flex items-center gap-2 px-4 py-1 bg-gray-200 rounded"> <span><FaArrowLeft className=''/></span> Back</button> */}
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 cursor-pointer bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
           >
-            <FaArrowLeft />
+            <FaArrowLeft size={12} />
             Back
           </button>
           <button className="cursor-pointer px-4 py-1 bg-green-200 rounded">Edit</button>
-          <button onClick={handleGeneratePDF} className="cursor-pointer px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Print / PDF</button>
+          <button
+            onClick={handleGeneratePDF}
+            className="cursor-pointer px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Print / PDF
+          </button>
         </div>
       </div>
 
       {/* Customer Info */}
       <div className="bg-white shadow rounded p-6 mb-6">
         <div className="grid grid-cols-3 gap-6">
-
           <div>
             <p className="text-gray-500 text-sm">Customer Name</p>
             <h3 className="font-semibold">{customer}</h3>
           </div>
-
           <div>
             <p className="text-gray-500 text-sm">Date</p>
-            <h3 className="font-semibold">{date}</h3>
+            <h3 className="font-semibold">
+              {date ? new Date(date).toLocaleDateString(undefined, {
+                day: '2-digit', month: 'short', year: 'numeric'
+              }) : '-'}
+            </h3>
           </div>
-
           <div>
             <p className="text-gray-500 text-sm">Address</p>
             <h3 className="font-semibold">{address}</h3>
           </div>
-
           <div>
             <p className="text-gray-500 text-sm">NTN</p>
             <h3 className="font-semibold">{ntn || "-"}</h3>
           </div>
-
           <div>
             <p className="text-gray-500 text-sm">STRN</p>
             <h3 className="font-semibold">{strn || "-"}</h3>
           </div>
-
         </div>
       </div>
 
@@ -133,7 +138,6 @@ const GenerateBillPdf = () => {
               <th className="p-2 border">Amount</th>
             </tr>
           </thead>
-
           <tbody>
             <tr>
               <td className="p-2 border">1</td>
@@ -142,7 +146,7 @@ const GenerateBillPdf = () => {
               <td className="p-2 border">{batchNo}</td>
               <td className="p-2 border">{qty}</td>
               <td className="p-2 border">{rate}</td>
-              <td className="p-2 border">{subTotal}</td>
+              <td className="p-2 border">{subTotal}</td> {/* qty * rate */}
             </tr>
           </tbody>
         </table>
@@ -153,14 +157,12 @@ const GenerateBillPdf = () => {
         <div className="bg-white shadow rounded p-6 w-80">
           <div className="flex justify-between mb-2">
             <span>Sub Total</span>
-            <span>{total}</span>
+            <span>{subTotal}</span>   {/* ✅ was showing total */}
           </div>
-
           <div className="flex justify-between mb-2">
             <span>Discount (Rs)</span>
-            <span>{discount}</span>
+            <span>{discount}</span>   {/* ✅ was showing hardcoded value */}
           </div>
-
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
             <span>{total}</span>

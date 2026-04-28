@@ -34,6 +34,11 @@ const Outflows = () => {
   const [outflows, setOutflows] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [totalOuflows,setTotalOuflows] = useState('')
+  const [page,setPage] = useState(1)
+  const [totalPages,setTotalPages] = useState(null)
+
+
   const [filters, setFilters] = useState({
     search: '',
     startDate: null,
@@ -46,8 +51,22 @@ const Outflows = () => {
     description: '',
     amount: '',
   });
+  const handleNextPage = () => {
+    console.log('page')
 
-  const handleGetOutflows = async (currentFilters = filters, isInitialLoad = false) => {
+    setPage(prev => prev + 1)
+  }
+
+  console.log(page)
+
+  // handle previous page
+
+  const handlePreviousPage = () => {
+    setPage(prev => prev - 1)
+
+  }
+
+  const handleGetOutflows = async (page=1 ,limit=10, currentFilters = filters, isInitialLoad = false) => {
     try {
       setLoading(true);
 
@@ -69,9 +88,13 @@ const Outflows = () => {
         params.category = currentFilters.category;
       }
 
-      const response = await api.get('/api/outflow/get-all', { params });
+
+      const response = await api.get(`/api/outflow/get-all?page=${page}&limit=${limit}`, { params });
       setOutflows(response.data || []);
       setTotalAmount(response.totalAmount || 0);
+      setTotalOuflows(response.totalOutflows)
+      setTotalPages(response.totalPages)
+      console.log(response)
     } catch (error) {
       toast.error(error?.response?.data?.error || 'Unable to load outflows');
     } finally {
@@ -80,8 +103,8 @@ const Outflows = () => {
   };
 
   useEffect(() => {
-    handleGetOutflows(filters, true);
-  }, []);
+    handleGetOutflows(page,10,filters, true);
+  }, [page]);
 
   const handleAddOutflow = async () => {
     try {
@@ -331,6 +354,9 @@ const Outflows = () => {
           </div>
         </div>
 
+        <div className="bg-white px-4 pt-1 pb-6" >
+
+
         <Table
           columns={columns}
           dataSource={outflows}
@@ -340,6 +366,19 @@ const Outflows = () => {
           loading={loading}
           pagination={false}
         />
+        <div className='mt-5 flex justify-between gap-3 text-gray-600 font-primary'>
+            <div>
+              <p> Total Outflows {totalOuflows}</p>
+            </div>
+            <div className={`flex gap-2 items-center ${filters.search.trim() !== '' ? 'hidden' : 'flex'}`}>
+              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>previous</button>
+              <p> page {page} of {totalPages} </p>
+              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>next</button>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </ConfigProvider>
   );

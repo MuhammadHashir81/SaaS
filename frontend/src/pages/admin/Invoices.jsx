@@ -213,17 +213,17 @@ const handleResetFilters = () => {
           <div className='flex items-center justify-between'>
 
             <h2 className='font-primary text-xl font-bold mb-2'>Invoices</h2>
-            <NavLink to='/admin/new-invoice' className='flex items-center gap-2 bg-blue-600 font-primary font-medium px-4 py-3 rounded-md text-white'>
-              <FaPlus />
+            <NavLink to='/admin/new-invoice' className='flex items-center gap-2 bg-blue-600 font-primary font-medium px-3 py-2 rounded-md text-white'>
+              <FaPlus size={12}/>
               Create Invoice
             </NavLink>
           </div>
 
           {/* the uppper div */}
-          <div className='bg-white shadow-md grid  grid-cols-7 px-2 py-3 my-4 rounded-md gap-4'>
+          <div className='bg-white shadow-md grid grid-cols-6 px-2 py-3 my-4 rounded-md gap-4'>
             <input
               type="text"
-              className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' placeholder='Customer name'
+              className=' outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' placeholder='Customer name'
               value={filters.customer}
               onChange={handleChange("customer")}
 
@@ -231,26 +231,35 @@ const handleResetFilters = () => {
 
             <DatePicker
               value={filters.startDate ? dayjs(filters.startDate) : null}
+              placeholder='start date'
               onChange={handleDateChange("startDate")}
               needConfirm />
 
             <DatePicker
               value={filters.endDate ? dayjs(filters.endDate) : null}
+              placeholder='end date'
               onChange={handleDateChange("endDate")}
               needConfirm />
-            <input
-              type="number"
-              value={filters.minTotal}
-              onChange={handleChange("minTotal")}
-              className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
 
             <input
               type="number"
+              placeholder='min total'
+              value={filters.minTotal}
+              onChange={handleChange("minTotal")}
+              className='font-primary outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
+
+            <input
+              type="number"
+              placeholder='max total'
               value={filters.maxTotal}
               onChange={handleChange("maxTotal")}
-              className='outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
-            <button onClick={()=>handleSearchInvoices(filters)} className='cursor-pointer font-primary font-medium bg-blue-500 text-white rounded-md py-2'>search</button>
-            <button onClick={handleResetFilters} className='cursor-pointer font-primary   font-medium bg-gray-200 rounded-md'>reset</button>
+              className='font-primary outline-1 px-2 outline-gray-100 focus:outline-black rounded-sm' />
+
+              <div className='flex gap-3'>
+            <button onClick={()=>handleSearchInvoices(filters)} className='w-[50%]  cursor-pointer font-primary font-medium bg-blue-500 text-white rounded-md py-1.5'>search</button>
+            <button onClick={handleResetFilters} className='w-[50%] cursor-pointer font-primary   font-medium bg-gray-200 rounded-md'>reset</button>
+              </div>
+
           </div>
 
 
@@ -267,9 +276,9 @@ const handleResetFilters = () => {
               <p> Total Invoices {totalInvoices}</p>
             </div>
             <div className={`flex gap-2 items-center flex`}>
-              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>previous</button>
+              <button disabled={page === 1} onClick={handlePreviousPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>previous</button>
               <p> page {page} of {totalPages} </p>
-              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-3 py-1.5 cursor-pointer hover:bg-gray-50'>next</button>
+              <button disabled={page === totalPages} onClick={handleNextPage} className=' border-1 border-gray-100  rounded-sm px-4 py-1 cursor-pointer hover:bg-gray-50'>next</button>
             </div>
 
           </div>
